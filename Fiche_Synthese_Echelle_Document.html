@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="M. DIAKHO - Lycée Professionnel">
+    <title>Fiche Synthèse : Échelle d'un document | Bac Pro MELEC</title>
+    <style>
+        /* =========================================================================
+           STYLE GLOBAL FICHE SYNTHÈSE A4 RECTO-VERSO (2 PAGES STRICTES)
+           Filière MELEC - Thème Bleu Royal (#1e3a8a / #4472c4)
+           ========================================================================= */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #525659; /* Fond gris liseuse PDF */
+            color: #222;
+            line-height: 1.45;
+        }
+
+        /* Barre d'action fixe en haut */
+        .actions-bar {
+            position: sticky;
+            top: 10px;
+            z-index: 1000;
+            max-width: 210mm;
+            margin: 0 auto 15px auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1e293b;
+            padding: 10px 18px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            color: white;
+        }
+
+        .actions-bar .btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .actions-bar .btn:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        .actions-bar .btn-secondary {
+            background: #475569;
+        }
+
+        .actions-bar .btn-secondary:hover {
+            background: #334155;
+        }
+
+        /* Format A4 Certifié */
+        .a4-page {
+            width: 210mm;
+            max-width: 210mm;
+            height: 297mm;
+            min-height: 297mm;
+            max-height: 297mm;
+            margin: 0 auto 20px auto;
+            padding: 10mm 15mm;
+            background: white;
+            box-shadow: 0 0 12px rgba(0,0,0,0.4);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+
+        /* En-tête compact officiel */
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+
+        .header-table td {
+            border: 1.5px solid #1e3a8a;
+            padding: 6px 10px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .header-title {
+            background-color: #eef3fc;
+            font-size: 17px;
+            font-weight: 800;
+            color: #1e3a8a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .header-sub {
+            font-size: 12px;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        /* Boîtes thématiques */
+        .card-box {
+            border: 1.5px solid #4472c4;
+            border-radius: 6px;
+            padding: 9px 12px;
+            margin-bottom: 9px;
+            background: #ffffff;
+        }
+
+        .card-box h3 {
+            margin: 0 0 6px 0;
+            color: #1e3a8a;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border-bottom: 1.5px solid #d9e2ec;
+            padding-bottom: 3px;
+        }
+
+        .card-box p, .card-box li {
+            font-size: 11.5px;
+            margin: 3px 0;
+        }
+
+        /* Formule mise en valeur */
+        .formula-box {
+            background: linear-gradient(135deg, #eef3fc, #dbeafe);
+            border: 2px dashed #2563eb;
+            border-radius: 6px;
+            padding: 8px 12px;
+            text-align: center;
+            margin: 6px 0;
+            font-size: 13px;
+            font-weight: bold;
+            color: #1e3a8a;
+        }
+
+        .formula-box span {
+            color: #b91c1c;
+            font-size: 14px;
+        }
+
+        /* Grilles internes */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 6px;
+        }
+
+        .mini-card {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            padding: 6px 8px;
+        }
+
+        .mini-card h4 {
+            margin: 0 0 3px 0;
+            font-size: 12px;
+            color: #1e3a8a;
+        }
+
+        .mini-card p {
+            margin: 0;
+            font-size: 11px;
+            color: #475569;
+        }
+
+        /* Tableaux techniques */
+        .tech-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+            margin: 4px 0;
+        }
+
+        .tech-table th, .tech-table td {
+            border: 1px solid #cbd5e1;
+            padding: 5px 8px;
+            text-align: left;
+        }
+
+        .tech-table th {
+            background: #eef3fc;
+            color: #1e3a8a;
+            font-weight: 700;
+        }
+
+        .tech-table tr:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        /* Exemple pratique */
+        .example-box {
+            background: #f0fdf4;
+            border-left: 4px solid #16a34a;
+            padding: 6px 10px;
+            margin: 5px 0;
+            border-radius: 0 4px 4px 0;
+            font-size: 11.5px;
+        }
+
+        .example-box strong {
+            color: #15803d;
+        }
+
+        /* Alerte piège à éviter */
+        .alert-box {
+            background: #fef2f2;
+            border-left: 4px solid #dc2626;
+            padding: 6px 10px;
+            margin: 5px 0;
+            border-radius: 0 4px 4px 0;
+            font-size: 11.5px;
+        }
+
+        .alert-box strong {
+            color: #b91c1c;
+        }
+
+        /* Pied de page A4 */
+        .page-footer {
+            border-top: 1px solid #cbd5e1;
+            padding-top: 4px;
+            font-size: 10px;
+            color: #64748b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Styles d'impression stricts A4 */
+        @media print {
+            body {
+                background: white !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .actions-bar {
+                display: none !important;
+            }
+
+            .a4-page {
+                box-shadow: none !important;
+                margin: 0 !important;
+                width: 210mm !important;
+                height: 297mm !important;
+                max-height: 297mm !important;
+                page-break-after: always !important;
+                page-break-inside: avoid !important;
+                padding: 10mm 15mm !important;
+            }
+
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+        }
+
+        /* =========================================================================
+           ÉCRAN DE VERROUILLAGE SÉCURISÉ (ACCÈS CODE ENSEIGNANT)
+           ========================================================================= */
+        #lock-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.96);
+            z-index: 999999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            backdrop-filter: blur(8px);
+        }
+
+        .lock-card {
+            background: #1e293b;
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            padding: 32px 28px;
+            max-width: 440px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Overlay de Verrouillage (Code Enseignant Requis) -->
+    <div id="lock-overlay" style="display: flex;">
+        <div class="lock-card">
+            <div style="font-size: 38px; margin-bottom: 10px;">🔒</div>
+            <h2 style="margin: 0 0 6px 0; color: #93c5fd; font-size: 20px;">Accès Enseignant Requis</h2>
+            <div style="font-size: 12.5px; color: #cbd5e1; margin-bottom: 16px;">
+                Fiche de Synthèse — Bac Pro MELEC<br>
+                <span style="color: #94a3b8; font-size: 11.5px;">Cette fiche de cours est accessible uniquement après validation du TD par le professeur.</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px; max-width: 280px; margin: 0 auto;">
+                <input type="password" id="code-enseignant-input" placeholder="Code secret enseignant"
+                    onkeydown="if(event.key==='Enter') validerCodeDirect()"
+                    style="padding: 9px 12px; border: 2px solid #3b82f6; border-radius: 6px; font-size: 14px; font-weight: bold; text-align: center; outline: none; background: white; color: #0f172a;">
+                <button type="button" onclick="validerCodeDirect()"
+                    style="background: #2563eb; color: white; border: none; padding: 10px 16px; border-radius: 6px; font-weight: 700; font-size: 13.5px; cursor: pointer; transition: background 0.2s;">
+                    Déverrouiller la Fiche
+                </button>
+                <div id="code-error-msg" style="color: #f87171; font-size: 12px; font-weight: bold; display: none;">Code enseignant incorrect !</div>
+                <a href="TD_Sequence1_MELEC_Echelle_Document.html" style="color: #94a3b8; font-size: 12px; text-decoration: none; margin-top: 4px;">
+                    ← Retourner au TD Interactif
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenu de la Fiche Synthèse -->
+    <div id="synthese-content" style="display: none;">
+
+    <!-- Barre d'actions supérieure -->
+    <div class="actions-bar">
+        <div>
+            <strong style="font-size: 14px; color: #93c5fd;">Bac Pro MELEC | Fiche Synthèse Officielle</strong>
+            <span style="font-size: 12px; color: #cbd5e1; margin-left: 10px;">Séquence 1 : Séance Échelle d'un document</span>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <a href="TD_Sequence1_MELEC_Echelle_Document.html" class="btn btn-secondary">Retour au TD Interactif</a>
+            <button onclick="window.print()" class="btn">Imprimer la Fiche (A4 Recto-Verso)</button>
+        </div>
+    </div>
+
+    <!-- =========================================================================
+         PAGE 1 / 2 : RECTO — LES FONDAMENTAUX DES ÉCHELLES & MÉTHODES DE CALCUL
+         ========================================================================= -->
+    <div class="a4-page" id="page-1">
+        <div>
+            <!-- En-tête Page 1 -->
+            <table class="header-table">
+                <tr>
+                    <td style="width: 25%; font-weight: bold; font-size: 12px; background: #f8fafc;">
+                        Lycée Professionnel<br><span style="color: #1e3a8a;">Bac Pro MELEC</span>
+                    </td>
+                    <td style="width: 50%;" class="header-title">
+                        ÉCHELLE D'UN DOCUMENT<br>
+                        <span style="font-size: 11px; font-weight: 600; text-transform: none; color: #475569;">
+                            Fiche de Synthèse & Mémento Technique — Lecture de Plans
+                        </span>
+                    </td>
+                    <td style="width: 25%; font-size: 12px; background: #f8fafc;">
+                        <strong>M. DIAKHO</strong><br>
+                        <span style="color: #64748b;">Feuille 1 / 2 (Recto)</span>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- 1. Définition et Formule Fondamentale -->
+            <div class="card-box">
+                <h3>1. Qu'est-ce que l'Échelle d'un document ?</h3>
+                <p>
+                    L'<strong>échelle</strong> d'un plan ou dessin technique est le <strong>rapport mathématique constant</strong> entre la dimension mesurée sur le papier (ou sur écran) et la dimension réelle de l'ouvrage sur le terrain, exprimées dans la <strong>MÊME UNITÉ</strong>.
+                </p>
+                <div class="formula-box">
+                    Échelle = <span>Dimension mesurée sur le plan (D<sub>plan</sub>)</span> / <span>Dimension réelle sur le terrain (D<sub>réelle</sub>)</span>
+                </div>
+                <div class="alert-box">
+                    <strong>RÈGLE D'OR DES UNITÉS :</strong> Avant toute division ou multiplication, assurez-vous impérativement que les deux grandeurs sont exprimées dans la <strong>même unité</strong> (ex : tout en centimètres ou tout en millimètres) !
+                </div>
+            </div>
+
+            <!-- 2. Les 3 Familles d'Échelles -->
+            <div class="card-box">
+                <h3>2. Les Trois Familles d'Échelles Normalisées</h3>
+                <div class="grid-3">
+                    <div class="mini-card" style="border-top: 3px solid #2563eb;">
+                        <h4>Échelle de Réduction (1 : N)</h4>
+                        <p><strong>D<sub>plan</sub> &lt; D<sub>réelle</sub></strong></p>
+                        <p style="margin-top: 4px;">Le dessin est plus petit que la réalité. Indispensable pour représenter des bâtiments, pièces, réseaux électriques.</p>
+                        <p style="color: #1e3a8a; font-weight: bold; margin-top: 4px;">Ex : 1:50, 1:76, 1:100, 1:170</p>
+                    </div>
+                    <div class="mini-card" style="border-top: 3px solid #16a34a;">
+                        <h4>Échelle Vraie Grandeur (1 : 1)</h4>
+                        <p><strong>D<sub>plan</sub> = D<sub>réelle</sub></strong></p>
+                        <p style="margin-top: 4px;">Le dessin a exactement la même taille que l'objet réel. Utilisé pour de petits appareillages ou détails de fixation.</p>
+                        <p style="color: #16a34a; font-weight: bold; margin-top: 4px;">Ex : 1:1</p>
+                    </div>
+                    <div class="mini-card" style="border-top: 3px solid #f59e0b;">
+                        <h4>Échelle d'Agrandissement (N : 1)</h4>
+                        <p><strong>D<sub>plan</sub> &gt; D<sub>réelle</sub></strong></p>
+                        <p style="margin-top: 4px;">Le dessin est plus grand que l'objet réel. Utilisé pour les composants électroniques miniatures et micro-mécanismes.</p>
+                        <p style="color: #d97706; font-weight: bold; margin-top: 4px;">Ex : 2:1, 5:1, 10:1</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Méthode 1 : Calculer une Dimension Réelle -->
+            <div class="card-box">
+                <h3>3. Méthode 1 : Calculer une Dimension Réelle à partir d'une Échelle (1 : N)</h3>
+                <p>Sur un plan à l'échelle <strong>1 : N</strong> (ex : 1:76), chaque centimètre sur le plan vaut <strong>N centimètres réels</strong>.</p>
+                <div class="grid-2">
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 6px 10px; border-radius: 4px;">
+                        <strong style="color: #1e3a8a; font-size: 12px;">Étapes de calcul :</strong>
+                        <ol style="margin: 4px 0; padding-left: 18px; font-size: 11px;">
+                            <li>Mesurer la longueur sur le plan à la règle (en <strong>cm</strong>).</li>
+                            <li>Multiplier cette mesure par le dénominateur <strong>N</strong>.</li>
+                            <li>Convertir le résultat en <strong>mètres</strong> (diviser par 100).</li>
+                        </ol>
+                    </div>
+                    <div class="example-box">
+                        <strong>Exemple (Plan R.D.C. au 1 : 76) :</strong><br>
+                        - Mesure sur plan = <strong>11 cm</strong><br>
+                        - Calcul : 11 × 76 = <strong>836 cm</strong><br>
+                        - Conversion : 836 / 100 = <strong>8,36 m réels</strong>.
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Méthode 2 : Déterminer l'Échelle d'un Document -->
+            <div class="card-box">
+                <h3>🔍 4. Méthode 2 : Trouver l'Échelle Inconnue d'un Plan (Cote Réelle Connue)</h3>
+                <p>Quand on connaît la dimension réelle d'une façade ou d'un mur (ex : 14,85 m) et qu'on mesure sa taille sur le plan (ex : 8,7 cm) :</p>
+                <div class="grid-2">
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 6px 10px; border-radius: 4px;">
+                        <strong style="color: #1e3a8a; font-size: 12px;">Formule du dénominateur N :</strong>
+                        <div style="text-align: center; margin: 4px 0; font-weight: bold; color: #1e3a8a; font-size: 12px;">
+                            N = Dimension réelle (cm) / Dimension mesurée (cm)
+                        </div>
+                        <div style="font-size: 10.5px; color: #475569;">L'échelle s'écrit alors sous la forme normalisée <strong>1 : N</strong>.</div>
+                    </div>
+                    <div class="example-box">
+                        <strong>Exemple (Plan de Façade) :</strong><br>
+                        - Dimension réelle = 14,85 m = <strong>1485 cm</strong><br>
+                        - Dimension mesurée = <strong>8,7 cm</strong><br>
+                        - Dénominateur N = 1485 / 8,7 = <strong>170</strong><br>
+                        - <strong>Échelle du plan = 1 : 170</strong>.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pied de page 1 -->
+        <div class="page-footer">
+            <span>Bac Pro MELEC — Séquence 1 : Séance Échelle d'un document</span>
+            <span>Document pédagogique certifié — M. DIAKHO</span>
+            <span>Page 1 / 2</span>
+        </div>
+    </div>
+
+    <!-- =========================================================================
+         PAGE 2 / 2 : VERSO — ÉCHELLE GRADUÉE, OUTILS DE MESURE & USAGES PROFESSIONNELS
+         ========================================================================= -->
+    <div class="a4-page" id="page-2">
+        <div>
+            <!-- En-tête Page 2 -->
+            <table class="header-table">
+                <tr>
+                    <td style="width: 25%; font-weight: bold; font-size: 12px; background: #f8fafc;">
+                        Lycée Professionnel<br><span style="color: #1e3a8a;">Bac Pro MELEC</span>
+                    </td>
+                    <td style="width: 50%;" class="header-title">
+                        ÉCHELLE GRAPHISME & MÉTIER<br>
+                        <span style="font-size: 11px; font-weight: 600; text-transform: none; color: #475569;">
+                            Kutch, Instruments de mesure & Applications Chantier
+                        </span>
+                    </td>
+                    <td style="width: 25%; font-size: 12px; background: #f8fafc;">
+                        <strong>M. DIAKHO</strong><br>
+                        <span style="color: #64748b;">Feuille 2 / 2 (Verso)</span>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- 5. Les Outils de Mesure de l'Électricien -->
+            <div class="card-box">
+                <h3>5. Les Instruments de Mesure sur Plan</h3>
+                <div class="grid-2">
+                    <div class="mini-card">
+                        <h4>La Règle Plate Graduée (Double décimètre / Règle 30 cm)</h4>
+                        <p>Permet de mesurer précisément en millimètres et centimètres sur le plan. Nécessite ensuite d'effectuer le calcul mathématique de proportionnalité avec l'échelle.</p>
+                    </div>
+                    <div class="mini-card">
+                        <h4>Le KUTCH (Règle d'Architecte Triangulaire)</h4>
+                        <p>Règle à section triangulaire comportant <strong>6 échelles normalisées</strong> (1:20, 1:25, 1:50, 1:75, 1:100, 1:125). Elle permet de lire <strong>DIRECTEMENT la dimension réelle en mètres</strong> sur le plan sans calculatrice !</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. Tableau des Échelles Normalisées en Bâtiment MELEC -->
+            <div class="card-box">
+                <h3>6. Tableau des Échelles Courantes en Électrotechnique & Bâtiment</h3>
+                <table class="tech-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 18%;">Échelle</th>
+                            <th style="width: 28%;">Correspondance</th>
+                            <th style="width: 54%;">Utilisation Typique en Bac Pro MELEC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>1 : 20</strong> (ou 1:25)</td>
+                            <td>1 cm = 0,20 m (20 cm)</td>
+                            <td>Détails de pose, armoires électriques (TGBT), coffrets d'automatisme, cheminements spécifiques.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>1 : 50</strong></td>
+                            <td>1 cm = 0,50 m (50 cm)</td>
+                            <td><strong>Plan d'exécution électrique logement</strong> : prises de courant, points lumineux, pieuvres et gaines.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>1 : 100</strong></td>
+                            <td>1 cm = 1,00 m (100 cm)</td>
+                            <td><strong>Plan général d'architecte</strong> : distribution des pièces, cloisons, réservations et gaines techniques.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>1 : 200</strong></td>
+                            <td>1 cm = 2,00 m (200 cm)</td>
+                            <td>Bâtiments tertiaires et industriels de grande superficie, entrepôts, implantation des postes MT/BT.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>1 : 500</strong> à <strong>1 : 1000</strong></td>
+                            <td>1 cm = 5 m à 10 m</td>
+                            <td>Plan de masse, plan de situation, voirie et réseaux divers (VRD), raccordement au réseau public ENEDIS.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 7. Mémo Conversions Rapides & Pièges Fréquents -->
+            <div class="card-box">
+                <h3>💡 7. Mémo Conversions & Pièges à Éviter sur Chantier</h3>
+                <div class="grid-2">
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 6px 10px; border-radius: 4px;">
+                        <strong style="color: #1e3a8a; font-size: 11.5px;">Tableau de conversion express :</strong>
+                        <ul style="margin: 3px 0; padding-left: 18px; font-size: 11px;">
+                            <li><strong>1 m</strong> = 10 dm = 100 cm = 1 000 mm</li>
+                            <li><strong>1 cm</strong> = 0,01 m = 10 mm</li>
+                            <li>Pour passer de <strong>cm à m</strong> : <strong>diviser par 100</strong> (décaler la virgule de 2 crans vers la gauche).</li>
+                        </ul>
+                    </div>
+                    <div class="alert-box" style="margin: 0;">
+                        <strong>PIÈGES CLASSIQUES EN INTERVENTION :</strong>
+                        <ul style="margin: 3px 0; padding-left: 16px; font-size: 10.5px;">
+                            <li>Ne JAMAIS mesurer un plan reproduit sans avoir vérifié au préalable l'échelle graphique de contrôle !</li>
+                            <li>Une cote écrite en chiffre prime TOUJOURS sur une mesure à la règle.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pied de page 2 -->
+        <div class="page-footer">
+            <span>Bac Pro MELEC — Séquence 1 : Séance Échelle d'un document</span>
+            <span>Document pédagogique certifié — M. DIAKHO</span>
+            <span>Page 2 / 2</span>
+        </div>
+    </div>
+
+    </div>
+    <!-- FIN SYNTHESE CONTENT -->
+
+    <script>
+        // Empreinte cryptographique SHA-256 du code secret enseignant (aucune divulgation du code en clair)
+        const TEACHER_CODE_HASH = "f9a78464d1428b03ed04bcef318491614d11582986fa18447f72ae40b8a29d4d";
+
+        async function calculerSha256(str) {
+            try {
+                const buffer = new TextEncoder().encode(str);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            } catch (e) {
+                // Fallback léger si crypto.subtle n'est pas supporté
+                let hash = 0;
+                for (let i = 0; i < str.length; i++) {
+                    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+                    hash |= 0;
+                }
+                return String(hash);
+            }
+        }
+
+        async function verifierAuthentification() {
+            // 1. Vérification si déverrouillé depuis le TD validé par le professeur
+            const isUnlocked = sessionStorage.getItem('synthese_unlocked') === 'true';
+            if (isUnlocked) {
+                deverrouillerPage();
+                return true;
+            }
+
+            // 2. Vérification paramètre URL éventuel
+            const urlParams = new URLSearchParams(window.location.search);
+            const codeParam = urlParams.get('auth');
+            if (codeParam) {
+                const hashParam = await calculerSha256(codeParam.trim());
+                if (hashParam === TEACHER_CODE_HASH) {
+                    sessionStorage.setItem('synthese_unlocked', 'true');
+                    deverrouillerPage();
+                    return true;
+                }
+            }
+
+            verrouillerPage();
+            return false;
+        }
+
+        async function validerCodeDirect() {
+            const input = document.getElementById('code-enseignant-input');
+            const errorMsg = document.getElementById('code-error-msg');
+            if (!input) return;
+
+            const codeSaisi = input.value.trim();
+            if (!codeSaisi) return;
+
+            const hashSaisi = await calculerSha256(codeSaisi);
+            if (hashSaisi === TEACHER_CODE_HASH) {
+                sessionStorage.setItem('synthese_unlocked', 'true');
+                if (errorMsg) errorMsg.style.display = 'none';
+                deverrouillerPage();
+            } else {
+                if (errorMsg) {
+                    errorMsg.style.display = 'block';
+                    errorMsg.innerText = "Code enseignant incorrect !";
+                }
+                input.focus();
+                input.select();
+            }
+        }
+
+        function deverrouillerPage() {
+            const overlay = document.getElementById('lock-overlay');
+            const content = document.getElementById('synthese-content');
+            if (overlay) overlay.style.display = 'none';
+            if (content) content.style.display = 'block';
+        }
+
+        function verrouillerPage() {
+            const overlay = document.getElementById('lock-overlay');
+            const content = document.getElementById('synthese-content');
+            if (overlay) overlay.style.display = 'flex';
+            if (content) content.style.display = 'none';
+            const input = document.getElementById('code-enseignant-input');
+            if (input) setTimeout(() => input.focus(), 150);
+        }
+
+        window.addEventListener('DOMContentLoaded', verifierAuthentification);
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,3384 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Séquence 1 : Séance Échelle d'un document | Bac Pro MELEC</title>
+    <!-- Librairies locales pour archivage automatique du dossier complet en PDF sur Google Drive -->
+    <script src="js/html2canvas.min.js"></script>
+    <script src="js/jspdf.umd.min.js"></script>
+    <script src="js/td_images_data.js"></script>
+    <style>
+        /* =========================================================================
+           STYLE GLOBAL MELEC — ÉCRIN GRIS LISEUSE & FORMAT A4 STRICT
+           Thème : Bleu Royal MELEC (#1e3a8a / #4472c4 / #2563eb)
+           ========================================================================= */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px 10px;
+            background-color: #525659;
+            /* Fond liseuse PDF */
+            color: #222;
+            line-height: 1.5;
+            overflow-x: auto;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        /* Champs éditables sélectionnables */
+        input,
+        textarea,
+        select {
+            -webkit-user-select: auto;
+            -moz-user-select: auto;
+            -ms-user-select: auto;
+            user-select: auto;
+        }
+
+        /* =========================================================================
+           SÉCURITÉ CODE ENSEIGNANT — DÉSACTIVATION DE L'ŒILLETON (EDGE, CHROME, IE)
+           Empêche l'affichage de l'icône de révélation du mot de passe
+           ========================================================================= */
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear,
+        #prof-code::-ms-reveal,
+        #prof-code::-ms-clear {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+            pointer-events: none !important;
+            visibility: hidden !important;
+        }
+
+        input[type="password"]::-webkit-credentials-auto-fill-button,
+        input[type="password"]::-webkit-contacts-auto-fill-button,
+        #prof-code::-webkit-credentials-auto-fill-button,
+        #prof-code::-webkit-contacts-auto-fill-button {
+            display: none !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+            position: absolute !important;
+            right: 0 !important;
+        }
+
+        #prof-code {
+            -webkit-text-security: disc;
+        }
+
+        /* =========================================================================
+           DISPOSITION EN 2 LIGNES (LIGNE 1 : 3 PREMIÈRES PAGES | LIGNE 2 : LE RESTE)
+           ========================================================================= */
+        .pages-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            min-width: max-content;
+            box-sizing: border-box;
+            margin: 0 auto;
+        }
+
+        .pages-row {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 24px;
+            margin-bottom: 30px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .pages-row:last-child {
+            margin-bottom: 20px;
+        }
+
+        /* Format A4 certifié */
+        .a4-page {
+            width: 210mm;
+            min-width: 210mm;
+            max-width: 210mm;
+            min-height: 297mm;
+            margin: 0;
+            padding: 10mm 15mm;
+            background: white;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow-x: hidden;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        /* En-tête type Lycée Professionnel */
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 12px;
+        }
+
+        .header-table td {
+            border: 2px solid #1e3a8a;
+            padding: 7px 10px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .header-title {
+            background-color: #eef3fc;
+            font-size: 17px;
+            font-weight: 800;
+            color: #1e3a8a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .header-sub {
+            font-size: 12px;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        /* Boîtes de section */
+        .section-box {
+            border: 2px solid #4472c4;
+            padding: 10px 14px;
+            margin-bottom: 11px;
+            border-radius: 6px;
+            background: #ffffff;
+        }
+
+        .section-box h3 {
+            color: #1e3a8a;
+            margin-top: 0;
+            margin-bottom: 6px;
+            border-bottom: 2px solid #4472c4;
+            padding-bottom: 4px;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Fiche Contrat */
+        .student-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px 14px;
+            margin-bottom: 8px;
+            background: #eef3fc;
+            padding: 10px 14px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 6px;
+        }
+
+        .student-info .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .student-field {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .student-field label {
+            font-weight: 700;
+            font-size: 12.5px;
+            color: #1e3a8a;
+            white-space: nowrap;
+            min-width: fit-content;
+        }
+
+        .student-field input,
+        .student-field select {
+            flex: 1;
+            padding: 6px 10px;
+            border: 1.5px solid #94a3b8;
+            border-radius: 4px;
+            font-size: 12.5px;
+            background: white;
+            font-weight: 600;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .student-field input:focus,
+        .student-field select:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        .student-field input.input-required-error,
+        .student-field select.input-required-error {
+            border-color: #ef4444 !important;
+            background-color: #fef2f2 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25) !important;
+            animation: shake 0.35s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-4px); }
+            40% { transform: translateX(4px); }
+            60% { transform: translateX(-3px); }
+            80% { transform: translateX(3px); }
+        }
+
+        /* Objectifs & Mise en situation */
+        .objective-card {
+            background: linear-gradient(135deg, #f8fafc, #edf2f7);
+            border-left: 5px solid #2563eb;
+            padding: 8px 12px;
+            margin: 8px 0;
+            border-radius: 0 6px 6px 0;
+            font-size: 12px;
+        }
+
+        /* Tableaux techniques & compétences */
+        .eval-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin: 10px 0;
+        }
+
+        .eval-table th,
+        .eval-table td {
+            border: 1.5px solid #cbd5e1;
+            padding: 8px 12px;
+            vertical-align: middle;
+        }
+
+        .eval-table th {
+            background: #1e3a8a;
+            color: white;
+            font-weight: 700;
+            text-align: left;
+        }
+
+        .eval-table td {
+            background: white;
+        }
+
+        /* Badges de compétence */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .badge-vert-fonce {
+            background: #15803d;
+            color: white;
+        }
+
+        .badge-vert-clair {
+            background: #86efac;
+            color: #14532d;
+        }
+
+        .badge-jaune {
+            background: #fef08a;
+            color: #854d0e;
+        }
+
+        .badge-rouge {
+            background: #fca5a5;
+            color: #7f1d1d;
+        }
+
+        .badge-neutre {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        /* Note finale Box */
+        .note-global-box {
+            background: linear-gradient(135deg, #eef3fc, #dbeafe);
+            border: 2.5px solid #2563eb;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            margin: 12px 0;
+        }
+
+        .note-score {
+            font-size: 32px;
+            font-weight: 900;
+            color: #1e3a8a;
+            margin: 2px 0;
+        }
+
+        /* Espace Enseignant */
+        .prof-box {
+            background: #fffbeb;
+            border: 2px solid #f59e0b;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-top: 10px;
+        }
+
+        .prof-box h4 {
+            margin: 0 0 8px 0;
+            color: #92400e;
+            font-size: 13.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Questions & Formulaires d'activités */
+        .question-card {
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 10px 14px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 4px;
+        }
+
+        .question-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .question-points {
+            font-size: 11.5px;
+            font-weight: 700;
+            background: #eef3fc;
+            color: #2563eb;
+            padding: 2px 8px;
+            border-radius: 12px;
+            border: 1px solid #bfdbfe;
+        }
+
+        /* Illustrations des plans */
+        .plan-img-container {
+            text-align: center;
+            margin: 6px 0 10px 0;
+            background: #f8fafc;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 6px;
+            position: relative;
+        }
+
+        .plan-img-container img {
+            max-width: 100%;
+            height: auto;
+            max-height: 125mm;
+            object-fit: contain;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .plan-badge-scale {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            background: #fef08a;
+            color: #854d0e;
+            font-weight: 800;
+            font-size: 12.5px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            border: 1.5px solid #eab308;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+            z-index: 5;
+        }
+
+        .zoomable-plan {
+            cursor: zoom-in;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .zoomable-plan:hover {
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35) !important;
+            transform: scale(1.008);
+        }
+
+        .plan-zoom-cue {
+            position: absolute;
+            bottom: 8px;
+            right: 10px;
+            background: rgba(15, 23, 42, 0.85);
+            color: #ffffff;
+            font-size: 10.5px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            z-index: 5;
+        }
+
+        /* Modale Plein Écran de Zoom Interactif */
+        .zoom-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.94);
+            backdrop-filter: blur(8px);
+            z-index: 999999;
+            flex-direction: column;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .zoom-modal.active {
+            display: flex;
+        }
+
+        .zoom-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 24px;
+            background: rgba(30, 41, 59, 0.95);
+            border-bottom: 1.5px solid rgba(255, 255, 255, 0.15);
+            color: #f8fafc;
+            flex-shrink: 0;
+        }
+
+        .zoom-modal-title {
+            font-size: 14.5px;
+            font-weight: 700;
+            color: #f1f5f9;
+        }
+
+        .zoom-modal-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .zoom-ctrl-btn {
+            background: #334155;
+            color: #f8fafc;
+            border: 1px solid #64748b;
+            padding: 5px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 700;
+            transition: all 0.15s;
+        }
+
+        .zoom-ctrl-btn:hover {
+            background: #2563eb;
+            border-color: #3b82f6;
+        }
+
+        .zoom-level-badge {
+            background: #0f172a;
+            color: #93c5fd;
+            border: 1px solid #1e3a8a;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 800;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .zoom-close-btn {
+            background: #dc2626;
+            border-color: #ef4444;
+            color: white;
+            font-size: 14px;
+            padding: 5px 12px;
+            margin-left: 8px;
+        }
+
+        .zoom-close-btn:hover {
+            background: #b91c1c;
+        }
+
+        .zoom-modal-body {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+        }
+
+        .zoom-modal-body.grabbing {
+            cursor: grabbing;
+        }
+
+        .zoom-modal-img {
+            max-width: 90%;
+            max-height: 85vh;
+            object-fit: contain;
+            transform-origin: center center;
+            transition: transform 0.1s ease-out;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+            background: #ffffff;
+            border-radius: 4px;
+        }
+
+        .zoom-instruction-bar {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.85);
+            color: #cbd5e1;
+            font-size: 11.5px;
+            padding: 5px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            pointer-events: none;
+        }
+
+        @media print {
+
+            .zoom-modal,
+            .plan-zoom-cue {
+                display: none !important;
+            }
+        }
+
+        /* Lignes de saisie calcul & dimension */
+        .calc-row {
+            display: grid;
+            grid-template-columns: 120px 1fr 130px;
+            gap: 8px;
+            align-items: center;
+            margin: 6px 0;
+            padding: 4px 8px;
+            background: #f8fafc;
+            border-radius: 4px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .calc-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #334155;
+        }
+
+        .calc-input,
+        .val-input {
+            padding: 5px 8px;
+            border: 1.5px solid #94a3b8;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            outline: none;
+            width: 100%;
+        }
+
+        .calc-input:focus,
+        .val-input:focus {
+            border-color: #2563eb;
+            background: #ffffff;
+        }
+
+        /* Bouton Indice Ampoule */
+        .btn-hint {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fcd34d;
+            border-radius: 4px;
+            padding: 3px 8px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+
+        .btn-hint:hover {
+            background: #fde68a;
+        }
+
+        .hint-text {
+            display: none;
+            margin-top: 6px;
+            padding: 6px 10px;
+            background: #fffbeb;
+            border-left: 3px solid #f59e0b;
+            font-size: 11px;
+            color: #78350f;
+            border-radius: 0 4px 4px 0;
+        }
+
+        /* Feedback correction enseignant */
+        .feedback-box {
+            display: none;
+            margin-top: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .feedback-correct {
+            display: block;
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #86efac;
+        }
+
+        .feedback-wrong {
+            display: block;
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+        /* Pied de page A4 */
+        .page-footer {
+            border-top: 1.5px solid #cbd5e1;
+            padding-top: 4px;
+            font-size: 10.5px;
+            color: #64748b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* =========================================================================
+           BANDEAU SUPÉRIEUR (DOCK DE NAVIGATION TRIPTYQUE MODERNE)
+           ========================================================================= */
+        .triptyque-nav-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 9999;
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            border-bottom: 2px solid #2563eb;
+            color: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            padding: 6px 16px;
+        }
+
+        .triptyque-nav-bar.nav-retracted {
+            transform: translateY(-82%);
+            opacity: 0.92;
+        }
+
+        .triptyque-nav-bar.nav-retracted:hover {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        body.has-dock {
+            padding-top: 85px;
+        }
+
+        .dock-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+
+        .dock-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dock-title-badge {
+            background: #2563eb;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .dock-student-info {
+            font-size: 12px;
+            color: #93c5fd;
+            font-weight: 600;
+        }
+
+        .dock-status-badge {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: 700;
+        }
+
+        .status-pending {
+            background: #f59e0b;
+            color: #451a03;
+        }
+
+        .status-validated {
+            background: #10b981;
+            color: white;
+        }
+
+        .dock-hint-counter {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            color: #fef08a;
+        }
+
+        .dock-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dock-btn {
+            background: #334155;
+            color: white;
+            border: 1px solid #475569;
+            padding: 4px 10px;
+            font-size: 11.5px;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+        }
+
+        .dock-btn:hover {
+            background: #2563eb;
+            border-color: #3b82f6;
+        }
+
+        .dock-btn-primary {
+            background: #2563eb;
+            border-color: #3b82f6;
+        }
+
+        .dock-btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .dock-btn-synthese {
+            background: #059669;
+            border-color: #10b981;
+        }
+
+        .dock-btn-synthese:hover {
+            background: #047857;
+        }
+
+        /* Onglets de navigation */
+        .dock-tabs {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            justify-content: flex-start;
+            overflow-x: auto;
+        }
+
+        .dock-tab {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #cbd5e1;
+            padding: 4px 12px;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .dock-tab:hover,
+        .dock-tab.active {
+            background: #2563eb;
+            color: white;
+            border-color: #60a5fa;
+        }
+
+        /* Barre d'avancement */
+        .dock-progress-container {
+            flex: 1;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-left: 12px;
+            min-width: 120px;
+        }
+
+        .dock-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #3b82f6, #10b981);
+            transition: width 0.3s ease;
+        }
+
+        .dock-progress-text {
+            font-size: 10.5px;
+            color: #94a3b8;
+            white-space: nowrap;
+            margin-left: 8px;
+        }
+
+        /* =========================================================================
+           STYLES D'IMPRESSION STRICTS A4
+           ========================================================================= */
+        @media print {
+            body {
+                background: white !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                zoom: 1 !important;
+                overflow: visible !important;
+            }
+
+            .triptyque-nav-bar,
+            .actions-bar,
+            .btn-hint,
+            .hint-text,
+            .zoom-modal,
+            .plan-zoom-cue,
+            .zoom-instruction-bar {
+                display: none !important;
+            }
+
+            .pages-container,
+            .pages-row {
+                display: block !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            .a4-page {
+                display: flex !important;
+                box-shadow: none !important;
+                margin: 0 !important;
+                width: 210mm !important;
+                min-height: 297mm !important;
+                max-height: 297mm !important;
+                page-break-after: always !important;
+                break-after: page !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                padding: 10mm 15mm !important;
+            }
+
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+
+            /* Afficher le corrigé à l'impression si validé */
+            .feedback-box {
+                display: inline-block !important;
+            }
+        }
+
+        /* Bouton de mode actif */
+        .dock-btn.active-mode {
+            background: #2563eb !important;
+            border-color: #60a5fa !important;
+            color: white !important;
+        }
+
+        /* Mode Défilement vertical (1 page par ligne) */
+        body.mode-vertical .pages-container {
+            min-width: 0;
+        }
+
+        body.mode-vertical .pages-row {
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+            margin-bottom: 25px;
+            width: auto;
+        }
+
+        body.mode-vertical .a4-page {
+            margin: 0 auto;
+        }
+
+        /* Mode Livret (Défilement continu horizontal) */
+        body.mode-livret .pages-container {
+            flex-direction: row;
+            align-items: flex-start;
+            justify-content: flex-start;
+            width: max-content;
+            gap: 20px;
+        }
+
+        body.mode-livret .pages-row {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            margin-bottom: 0;
+            width: max-content;
+        }
+
+        /* Mode 1 par 1 (Page active seule à l'écran) */
+        body.mode-single .pages-container {
+            min-width: 0;
+        }
+
+        body.mode-single .pages-row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 0;
+            width: auto;
+        }
+
+        body.mode-single .pages-row:not(:has(.single-active)) {
+            display: none;
+        }
+
+        body.mode-single .a4-page {
+            display: none;
+            margin: 0 auto;
+        }
+
+        body.mode-single .a4-page.single-active {
+            display: flex;
+        }
+
+        /* Styles spécifiques aux nouveaux exercices (Symboles, Orientation, Calculs) */
+        .symbol-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 6px 0 4px 0;
+            background: #ffffff;
+        }
+        .symbol-table th {
+            background: #facc15;
+            color: #0f172a;
+            border: 1.5px solid #0f172a;
+            padding: 5px 4px;
+            text-align: center;
+            font-weight: 800;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+        .symbol-table td {
+            border: 1.5px solid #0f172a;
+            padding: 4px 6px;
+            vertical-align: middle;
+        }
+        .symbol-table td.rep-col {
+            width: 38px;
+            text-align: center;
+            font-weight: 800;
+            font-size: 13px;
+            background: #f8fafc;
+            color: #1e3a8a;
+        }
+        .symbol-select,
+        .orient-select {
+            width: 100%;
+            padding: 4px 8px;
+            border: 1.5px solid #94a3b8;
+            border-radius: 4px;
+            font-size: 11.5px;
+            font-weight: 600;
+            background: #ffffff;
+            color: #1e293b;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .symbol-select:focus,
+        .orient-select:focus {
+            border-color: #2563eb;
+            background: #ffffff;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+        }
+        .orient-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px 16px;
+            margin-top: 6px;
+        }
+        .orient-item {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            padding: 6px 10px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+        }
+        .orient-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 700;
+            font-size: 12px;
+            color: #1e3a8a;
+        }
+        .circle-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 17px;
+            height: 17px;
+            border-radius: 50%;
+            border: 1.5px solid #1e3a8a;
+            font-size: 11px;
+            font-weight: 800;
+            color: #1e3a8a;
+            line-height: 1;
+            margin: 0 2px;
+        }
+        .calc-card-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 6px 10px;
+            background: #f8fafc;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            margin-top: 5px;
+        }
+        .unit-badge {
+            font-weight: 800;
+            font-size: 12px;
+            color: #1e3a8a;
+        }
+
+    </style>
+</head>
+
+<body class="has-dock">
+
+    <!-- =========================================================================
+         DOCK DE NAVIGATION TRIPTYQUE FLOTTANT (AUTO-RETRACTABLE)
+         ========================================================================= -->
+    <div class="triptyque-nav-bar" id="top-dock">
+        <div class="dock-top-row">
+            <div class="dock-left">
+                <span class="dock-title-badge" id="dock-filiere-badge">MELEC | Séquence 1</span>
+                <span class="dock-student-info" id="dock-student-name">En attente de saisie élève...</span>
+                <span class="dock-status-badge status-pending" id="dock-status-badge">En attente de validation</span>
+                <span class="dock-hint-counter" id="dock-hints-badge">💡 1 indice gratuit | Utilisés : 0</span>
+            </div>
+            <div class="dock-actions">
+                <button class="dock-btn active-mode" id="btn-mode-lignes" onclick="basculerModeAffichage('lignes')">Vue 2 Lignes</button>
+                <button class="dock-btn" id="btn-mode-vertical" onclick="basculerModeAffichage('vertical')">Défilement</button>
+                <button class="dock-btn" id="btn-mode-livret" onclick="basculerModeAffichage('livret')">Mode Livret</button>
+                <button class="dock-btn" onclick="ajusterEcran()">🔍 Ajuster</button>
+                <button type="button" id="btn-dock-synthese" class="dock-btn dock-btn-synthese" onclick="ouvrirFicheSynthese()"
+                    style="opacity: 0.6; cursor: not-allowed;" title="Accessible uniquement après validation enseignant">🔒 Fiche Synthèse</button>
+                <button class="dock-btn dock-btn-primary" onclick="naviguerVersPage('page-3-bilan')">Bilan &
+                    Note</button>
+                <button class="dock-btn" id="btn-dock-pdf" onclick="exporterPDF()" disabled
+                    style="opacity: 0.5; cursor: not-allowed;">Enregistrer PDF</button>
+            </div>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div class="dock-tabs">
+                <button class="dock-tab active" onclick="naviguerVersPage('page-1-garde')">1. Garde & Contrat</button>
+                <button class="dock-tab" onclick="naviguerVersPage('page-2-contexte')">2. Contexte &
+                    Compétences</button>
+                <button class="dock-tab" onclick="naviguerVersPage('page-3-bilan')">3. Bilan & Note</button>
+                <button class="dock-tab" onclick="naviguerVersPage('page-4-cas1')">4. Act. 1 (Symboles & Orientation)</button>
+                <button class="dock-tab" onclick="naviguerVersPage('page-5-cas2')">5. Act. 2 (Chauffage & Superficies)</button>
+                <button class="dock-tab" onclick="naviguerVersPage('page-6-cas3')">6. Act. 3 (Échelle & Mesures)</button>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <div class="dock-progress-container">
+                    <div class="dock-progress-bar" id="dock-progress-bar"></div>
+                </div>
+                <span class="dock-progress-text" id="dock-progress-text">0/26 réponses (0%)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================================
+         CONTENEUR PRINCIPAL DES PAGES (DISPOSITION EN 2 LIGNES)
+         Ligne 1 : Pages 1, 2, 3 (Garde, Contexte & Compétences, Bilan & Notes)
+         Ligne 2 : Pages 4, 5, 6 (Activité 1, Activité 2, Activité 3)
+         ========================================================================= -->
+    <main class="pages-container" id="pages-container">
+
+        <!-- LIGNE 1 : LES 3 PREMIÈRES PAGES -->
+        <div class="pages-row pages-row-1" id="pages-row-1">
+
+            <!-- =========================================================================
+                 PAGE 1 / 6 : PAGE DE GARDE & FICHE CONTRAT
+                 ========================================================================= -->
+            <div class="a4-page single-active" id="page-1-garde">
+        <div>
+            <!-- En-tête officiel -->
+            <table class="header-table">
+                <tr>
+                    <td style="width: 25%; font-weight: bold; font-size: 13px; background: #f8fafc;">
+                        Lycée Professionnel<br>
+                        <span id="p1-filiere-badge" style="color: #1e3a8a; font-size: 12px;">Section Bac Pro MELEC</span>
+                    </td>
+                    <td style="width: 50%;" class="header-title">
+                        Séquence 1 — Séance Échelle d'un document<br>
+                        <span style="font-size: 12px; font-weight: 600; text-transform: none; color: #334155;">
+                            Lecture de plans
+                        </span>
+                    </td>
+                    <td style="width: 25%; font-size: 13px; background: #f8fafc;">
+                        <strong>M. DIAKHO</strong>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Fiche Contrat -->
+            <div class="section-box">
+                <h3>Fiche Contrat</h3>
+
+                <!-- Sélecteur de Mode (Individuel / Binôme) -->
+                <div
+                    style="margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; background: #ffffff; padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                    <label
+                        style="display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 12px; color: #1e3a8a; cursor: pointer;">
+                        <input type="checkbox" id="check-binome" onchange="toggleBinomeMode(this.checked)">
+                        Travailler en binôme (2 élèves)
+                    </label>
+                    <span id="mode-badge" style="font-size: 11px; font-weight: bold; color: #64748b;">Mode
+                        individuel</span>
+                </div>
+
+                <!-- Informations Élève 1 -->
+                <div class="student-info">
+                    <div class="student-field">
+                        <label for="student-nom">Nom <span style="color: #ef4444;">*</span> :</label>
+                        <input type="text" id="student-nom" placeholder="Nom de famille"
+                            oninput="mettreAJourIdentite()">
+                    </div>
+                    <div class="student-field">
+                        <label for="student-prenom">Prénom <span style="color: #ef4444;">*</span> :</label>
+                        <input type="text" id="student-prenom" placeholder="Prénom" oninput="mettreAJourIdentite()">
+                    </div>
+                    <div class="student-field">
+                        <label for="student-classe">Classe <span style="color: #ef4444;">*</span> :</label>
+                        <select id="student-classe" onchange="changerClasse(this.value)">
+                            <option value="">-- Choisir la classe --</option>
+                            <option value="1MELEC1">1MELEC1</option>
+                            <option value="1MELEC2">1MELEC2</option>
+                            <option value="TMELEC1">TMELEC1</option>
+                            <option value="TMELEC2">TMELEC2</option>
+                            <option value="1MELFER MELEC">1MELFER MELEC</option>
+                            <option value="1MFER">1MFER</option>
+                            <option value="TMFER">TMFER</option>
+                            <option value="1MELFER MFER">1MELFER MFER</option>
+                        </select>
+                    </div>
+                    <div class="student-field" id="box-groupe">
+                        <label for="student-groupe">Groupe <span style="color: #ef4444;">*</span> :</label>
+                        <select id="student-groupe" onchange="mettreAJourIdentite()">
+                            <option value="">-- Choisir le groupe --</option>
+                            <option value="Groupe 1">Groupe 1</option>
+                            <option value="Groupe 2">Groupe 2</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Informations Élève 2 (Apparaît si binôme) -->
+                <div class="student-info" id="box-eleve-2"
+                    style="display: none; background: #e0e7ff; border-color: #a5b4fc;">
+                    <div class="student-field">
+                        <label for="student-nom2" style="color: #3730a3;">Nom (Élève 2) <span style="color: #ef4444;">*</span> :</label>
+                        <input type="text" id="student-nom2" placeholder="Nom du 2ème élève"
+                            oninput="mettreAJourIdentite()">
+                    </div>
+                    <div class="student-field">
+                        <label for="student-prenom2" style="color: #3730a3;">Prénom (Élève 2) <span style="color: #ef4444;">*</span> :</label>
+                        <input type="text" id="student-prenom2" placeholder="Prénom du 2ème élève"
+                            oninput="mettreAJourIdentite()">
+                    </div>
+                </div>
+                <div style="font-size: 11px; color: #dc2626; font-weight: 600; margin-top: 4px; display: flex; align-items: center; gap: 4px;">
+                    <span>*</span> Nom, prénom, classe et groupe sont obligatoires pour obtenir la note et valider le TD.
+                </div>
+            </div>
+
+            <!-- Objectif de la séance -->
+            <div class="section-box">
+                <h3>Objectif de la séance</h3>
+                <div class="objective-card"
+                    style="font-size: 12.5px; line-height: 1.5; color: #1e293b; font-weight: 500;">
+                    Être capable de déterminer des dimensions réelles à partir d'un plan d'architecture à une échelle
+                    donnée afin de préparer une intervention.
+                </div>
+            </div>
+
+            <!-- Illustration de Page de Garde -->
+            <div class="section-box" style="text-align: center; padding: 8px;">
+                <div style="position: relative; display: inline-block;">
+                    <img src="img/illustration_garde.jpg" alt="Plan architectural électrique et échelle"
+                        class="zoomable-plan"
+                        onclick="ouvrirZoomModal(this.src, 'Page de garde : Dossier architectural')"
+                        style="max-width: 95%; max-height: 105mm; border-radius: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
+                    <div class="plan-zoom-cue">🔍 Cliquer pour zoomer</div>
+                </div>
+                <div style="font-size: 11px; color: #64748b; margin-top: 4px; font-style: italic;">
+                    <span id="p1-filiere-subtitle">Étude de dossier technique et exploitation des plans de bâtiment en Bac Pro MELEC</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-footer">
+            <span>Lycée Professionnel — <span class="footer-filiere-tag">Bac Pro MELEC</span> | M. DIAKHO</span>
+            <span>Séquence 1 : Séance Échelle d'un document</span>
+            <span>Page 1 / 6</span>
+        </div>
+    </div>
+
+
+    <!-- =========================================================================
+         PAGE 2 / 6 : CONTEXTE, ACTIVITÉS & COMPÉTENCES DU RÉFÉRENTIEL
+         ========================================================================= -->
+    <div class="a4-page" id="page-2-contexte">
+        <div>
+            <!-- En-tête Page 2 -->
+            <table class="header-table">
+                <tr>
+                    <td style="width: 25%; font-weight: bold; font-size: 12px; background: #f8fafc;" class="header-filiere-tag">
+                        Bac Pro MELEC
+                    </td>
+                    <td style="width: 50%;" class="header-title">
+                        Séquence 1 — Dossier Technique & Référentiel
+                    </td>
+                    <td style="width: 25%; font-size: 12px; background: #f8fafc;">
+                        Feuille 2 / 6
+                    </td>
+                </tr>
+            </table>
+
+            <!-- BLOC MELEC (Actif par défaut ou si classe 1MELEC1, 1MELEC2, 1MELFER MELEC) -->
+            <div id="contexte-melec">
+                <!-- Activités Ciblées & Tâches MELEC -->
+                <div class="section-box" style="border: 1.5px solid #4472c4; border-radius: 6px; padding: 10px 14px; margin-bottom: 12px; background: white;">
+                    <h3 style="color: #003366; font-size: 13.5px; font-weight: 700; margin: 0 0 8px 0; padding-bottom: 5px; border-bottom: 1px solid #e2e8f0;">
+                        Activités Ciblées & Tâches Professionnelles
+                    </h3>
+                    <div style="background: #f8fafc; border-left: 4px solid #1e3a8a; padding: 7px 12px; border-radius: 0 4px 4px 0; margin-bottom: 8px;">
+                        <div style="color: #1e3a8a; font-weight: 700; font-size: 12px; margin-bottom: 2px;">Activité Ciblée :</div>
+                        <div style="font-size: 12px; color: #1e293b;">
+                            <strong style="color: #1e3a8a;">A1</strong> – Préparation des opérations de réalisation, de mise en service et de maintenance.
+                        </div>
+                    </div>
+                    <div style="background: #f8fafc; border-left: 4px solid #4472c4; padding: 7px 12px; border-radius: 0 4px 4px 0;">
+                        <div style="color: #4472c4; font-weight: 700; font-size: 12px; margin-bottom: 2px;">Tâche Professionnelle :</div>
+                        <div style="font-size: 12px; color: #1e293b;">
+                            <strong style="color: #4472c4;">T1-1</strong> – Prendre connaissance du dossier relatif aux opérations à réaliser.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Compétences Visées du Référentiel MELEC -->
+                <div class="section-box" style="border: 1.5px solid #4472c4; border-radius: 6px; padding: 10px 14px; margin-bottom: 12px; background: white;">
+                    <h3 style="color: #003366; font-size: 13.5px; font-weight: 700; margin: 0 0 8px 0; padding-bottom: 5px; border-bottom: 1px solid #e2e8f0;">
+                        Compétences Évaluées du Référentiel
+                    </h3>
+                    <div style="display: flex; flex-direction: column; gap: 7px;">
+                        <div style="padding: 8px 12px; background: #f0f4fc; border-left: 4px solid #1e3a8a; border-radius: 0 4px 4px 0;">
+                            <strong style="color: #1e3a8a; font-size: 12.5px;">C1 – Analyser les conditions de l'opération et son contexte</strong>
+                        </div>
+                        <div style="padding: 8px 12px; background: #f0fdf4; border-left: 4px solid #16a34a; border-radius: 0 4px 4px 0;">
+                            <strong style="color: #15803d; font-size: 12.5px;">C2 – Organiser son intervention / Poste de travail</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mise en situation & Problématique Professionnelle MELEC -->
+                <div class="section-box" style="border: 1.5px solid #4472c4; border-radius: 6px; padding: 10px 14px; margin-bottom: 10px; background: white;">
+                    <h3 style="color: #003366; font-size: 13.5px; font-weight: 700; margin: 0 0 6px 0; padding-bottom: 5px; border-bottom: 1px solid #e2e8f0;">
+                        Mise en Situation & Problématique Professionnelle
+                    </h3>
+                    <p style="font-size: 12px; line-height: 1.5; color: #1e293b; margin: 4px 0 8px 0;">
+                        Vous intervenez au sein d'une entreprise d'installation et de maintenance électrique. Votre chef d'équipe vous confie le dossier d'exécution électrique d'un pavillon d'habitation individuelle. Vous devez implanter l'armoire de répartition, les prises de courant, les circuits d'éclairage et déterminer le linéaire de gaines techniques.
+                    </p>
+                    <div style="background: #fffbeb; border: 1.5px solid #fcd34d; border-radius: 6px; padding: 8px 12px;">
+                        <strong style="color: #92400e; font-size: 12px;">Problématique de chantier :</strong>
+                        <div style="font-size: 11.5px; color: #78350f; margin-top: 3px; line-height: 1.45;">
+                            Avant d'entamer le traçage et la pose des conduits, vous devez impérativement vérifier les dimensions réelles des locaux et la validité des échelles indiquées sur les plans d'architecte (RDC, échelle graduée, plans des façades). Comment déduire les cotes réelles à partir des différentes échelles fournies ?
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Données & Conditions de Réalisation MELEC -->
+                <div class="section-box" style="border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px 12px; background: white;">
+                    <h3 style="color: #1e3a8a; font-size: 12.5px; font-weight: 700; margin: 0 0 6px 0;">Données & Conditions de Réalisation</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; font-size: 11.5px;">
+                        <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; padding: 6px 8px;">
+                            <strong style="color: #1e3a8a;">ON DONNE :</strong>
+                            <ul style="margin: 4px 0; padding-left: 14px; font-size: 10.5px;">
+                                <li>Dossier technique d'exécution pavillon.</li>
+                                <li>Plan d'architecte du R.D.C. (Échelle 1:100).</li>
+                                <li>Plans et coupes des façades.</li>
+                            </ul>
+                        </div>
+                        <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; padding: 6px 8px;">
+                            <strong style="color: #1e3a8a;">ON DEMANDE :</strong>
+                            <ul style="margin: 4px 0; padding-left: 14px; font-size: 10.5px;">
+                                <li>Identifier les symboles du bâtiment (Q1).</li>
+                                <li>Déterminer les orientations géographiques (Q2).</li>
+                                <li>Analyser le chauffage et évacuations (Q3-Q4).</li>
+                                <li>Calculer les superficies et cotes (Q5-Q9).</li>
+                            </ul>
+                        </div>
+                        <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; padding: 6px 8px;">
+                            <strong style="color: #1e3a8a;">ON EXIGE :</strong>
+                            <ul style="margin: 4px 0; padding-left: 14px; font-size: 10.5px;">
+                                <li>Rigueur mathématique et conversions.</li>
+                                <li>Indication systématique des unités (m, cm, m²).</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- =========================================================================
+                 BLOC MFER (Affiché si classe 1MFER ou 1MELFER MFER)
+                 ========================================================================= -->
+            <div id="contexte-mfer" style="display: none;">
+                <!-- Activités Ciblées & Tâches Professionnelles MFER -->
+                <div class="section-box" style="border: 1.5px solid #38bdf8; border-radius: 6px; padding: 10px 14px; margin-bottom: 12px; background: white;">
+                    <h3 style="color: #003366; font-size: 13.5px; font-weight: 700; margin: 0 0 8px 0; padding-bottom: 5px; border-bottom: 1px solid #e0f2fe;">
+                        Activités Ciblées & Tâches Professionnelles
+                    </h3>
+                    <div style="background: #f0f7ff; border-left: 4px solid #0284c7; padding: 7px 12px; border-radius: 0 4px 4px 0; margin-bottom: 8px;">
+                        <div style="color: #0284c7; font-weight: 700; font-size: 12px; margin-bottom: 2px;">Activité ciblée :</div>
+                        <div style="font-size: 12px; color: #0f172a;">
+                            <strong style="color: #0284c7;">A1</strong> : Préparation des opérations à réaliser
+                        </div>
+                    </div>
+                    <div style="background: #f0f7ff; border-left: 4px solid #38bdf8; padding: 7px 12px; border-radius: 0 4px 4px 0;">
+                        <div style="color: #0284c7; font-weight: 700; font-size: 12px; margin-bottom: 2px;">Tâches professionnelles :</div>
+                        <div style="font-size: 12px; color: #0f172a; margin-bottom: 3px;">
+                            <strong style="color: #0284c7;">A1T1</strong> : Prendre connaissance des dossiers relatifs aux opérations à réaliser
+                        </div>
+                        <div style="font-size: 12px; color: #0f172a;">
+                            <strong style="color: #0284c7;">A1T2</strong> : Analyser et exploiter les données techniques d'une installation
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Compétences Évaluées du Référentiel MFER -->
+                <div class="section-box" style="border: 1.5px solid #38bdf8; border-radius: 6px; padding: 10px 14px; margin-bottom: 12px; background: white;">
+                    <h3 style="color: #003366; font-size: 13.5px; font-weight: 700; margin: 0 0 8px 0; padding-bottom: 5px; border-bottom: 1px solid #e0f2fe;">
+                        Compétences Évaluées du Référentiel
+                    </h3>
+                    <div style="display: flex; flex-direction: column; gap: 7px;">
+                        <div style="padding: 8px 12px; background: #f0f9ff; border-left: 4px solid #0284c7; border-radius: 0 4px 4px 0;">
+                            <strong style="color: #0369a1; font-size: 12.5px;">C1 – Analyser les conditions de l'opération et son contexte</strong>
+                        </div>
+                        <div style="padding: 8px 12px; background: #f0fdf4; border-left: 4px solid #16a34a; border-radius: 0 4px 4px 0;">
+                            <strong style="color: #15803d; font-size: 12.5px;">C2 – Analyser et exploiter les données techniques de l'intervention</strong>
+                        </div>
+                        <div style="padding: 8px 12px; background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 0 4px 4px 0;">
+                            <strong style="color: #b45309; font-size: 12.5px;">C4 – Organiser son intervention / poste de travail</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mise en Situation & Problématique Professionnelle MFER -->
+                <div class="section-box" style="border: 1.5px solid #38bdf8; border-radius: 6px; padding: 10px 14px; margin-bottom: 10px; background: white;">
+                    <h3 style="color: #003366; font-size: 13.5px; font-weight: 700; margin: 0 0 6px 0; padding-bottom: 5px; border-bottom: 1px solid #e0f2fe;">
+                        Mise en Situation & Problématique Professionnelle
+                    </h3>
+                    <p style="font-size: 12px; line-height: 1.5; color: #1e293b; margin: 4px 0 8px 0;">
+                        Vous intervenez au sein d'une entreprise spécialisée dans les installations climatiques, frigorifiques et thermiques (Bac Pro MFER). Votre chef d'équipe vous confie le dossier technique d'exécution d'un pavillon d'habitation individuelle équipé d'une pompe à chaleur (PAC) air/eau et d'une climatisation réversible. Vous devez implanter l'unité extérieure, les liaisons frigorifiques, les émetteurs intérieurs et déterminer les passages des réseaux fluidiques.
+                    </p>
+                    <div style="background: #fffbeb; border: 1.5px solid #fcd34d; border-radius: 6px; padding: 8px 12px;">
+                        <strong style="color: #92400e; font-size: 12px;">Problématique de chantier :</strong>
+                        <div style="font-size: 11.5px; color: #78350f; margin-top: 3px; line-height: 1.45;">
+                            Avant d'entamer le tracé et la pose des réseaux frigorifiques, vous devez impérativement vérifier les dimensions réelles des locaux et la validité des échelles indiquées sur les plans d'architecte (plan du RDC, échelle graduée, plans des façades).<br>
+                            Comment déduire avec précision les cotes et hauteurs réelles à partir des différentes échelles fournies sur le dossier technique ?
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Données & Conditions de Réalisation MFER -->
+                <div class="section-box" style="border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px 12px; background: white;">
+                    <h3 style="color: #1e3a8a; font-size: 12.5px; font-weight: 700; margin: 0 0 6px 0;">Données & Conditions de Réalisation</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; font-size: 11.5px;">
+                        <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; padding: 6px 8px;">
+                            <strong style="color: #0284c7;">ON DONNE :</strong>
+                            <ul style="margin: 4px 0; padding-left: 14px; font-size: 10.5px;">
+                                <li>Dossier technique d'exécution (PAC & VMC).</li>
+                                <li>Plan d'architecte du R.D.C. (Échelle 1:100).</li>
+                                <li>Plans et coupes des façades.</li>
+                            </ul>
+                        </div>
+                        <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; padding: 6px 8px;">
+                            <strong style="color: #0284c7;">ON DEMANDE :</strong>
+                            <ul style="margin: 4px 0; padding-left: 14px; font-size: 10.5px;">
+                                <li>Identifier les symboles du bâtiment (Q1).</li>
+                                <li>Déterminer les orientations géographiques (Q2).</li>
+                                <li>Analyser le chauffage et évacuations (Q3-Q4).</li>
+                                <li>Calculer les superficies et cotes (Q5-Q9).</li>
+                            </ul>
+                        </div>
+                        <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; padding: 6px 8px;">
+                            <strong style="color: #0284c7;">ON EXIGE :</strong>
+                            <ul style="margin: 4px 0; padding-left: 14px; font-size: 10.5px;">
+                                <li>Rigueur des calculs et conversions.</li>
+                                <li>Indication systématique des unités (m, cm, m²).</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-footer">
+            <span>Lycée Professionnel — <span class="footer-filiere-tag">Bac Pro MELEC</span> | M. DIAKHO</span>
+            <span>Séquence 1 : Séance Échelle d'un document</span>
+            <span>Page 2 / 6</span>
+        </div>
+    </div>
+
+
+    <!-- =========================================================================
+         PAGE 3 / 6 : BILAN DE L'ÉVALUATION PAR COMPÉTENCES & ESPACE ENSEIGNANT
+         ========================================================================= -->
+    <div class="a4-page" id="page-3-bilan">
+        <div>
+            <!-- En-tête Page 3 -->
+            <table class="header-table">
+                <tr>
+                    <td style="width: 25%; font-weight: bold; font-size: 12px; background: #f8fafc;" class="header-filiere-tag">
+                        Bac Pro MELEC
+                    </td>
+                    <td style="width: 50%;" class="header-title">
+                        Bilan de l'Évaluation par Compétences
+                    </td>
+                    <td style="width: 25%; font-size: 12px; background: #f8fafc;">
+                        Feuille 3 / 6
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Identité Élève Récapitulative -->
+            <div
+                style="background: #eef3fc; border: 1.5px solid #cbd5e1; border-radius: 6px; padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; color: #1e3a8a;">
+                <span id="bilan-eleve-display">Élève : En attente de saisie sur la page 1</span>
+                <span id="bilan-classe-display">Classe : À renseigner sur la page 1</span>
+            </div>
+
+            <!-- Tableau officiel d'évaluation par compétences (C1, C2) -->
+            <table class="eval-table">
+                <thead>
+                    <tr>
+                        <th style="width: 65%;">Compétence du Référentiel</th>
+                        <th style="width: 35%; text-align: center;">Niveau d'Acquisition</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td id="label-comp-c1">
+                            <strong style="color: #1e3a8a; font-size: 13px;">C1</strong> – Analyser les conditions de l'opération et son contexte
+                        </td>
+                        <td style="text-align: center;">
+                            <span class="badge badge-neutre" id="badge-c1">Non évalué</span>
+                            <div style="font-size: 10.5px; color: #666; margin-top: 3px;" id="detail-c1">En attente de
+                                validation prof</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td id="label-comp-c2">
+                            <strong style="color: #15803d; font-size: 13px;">C2</strong> – Organiser son poste de travail
+                        </td>
+                        <td style="text-align: center;">
+                            <span class="badge badge-neutre" id="badge-c2">Non évalué</span>
+                            <div style="font-size: 10.5px; color: #666; margin-top: 3px;" id="detail-c2">Évalué par le
+                                professeur</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Note Globale du TD -->
+            <div class="note-global-box">
+                <div
+                    style="font-size: 12px; font-weight: 800; color: #1e3a8a; text-transform: uppercase; letter-spacing: 0.5px;">
+                    Note Globale du Travail Dirigé
+                </div>
+                <div class="note-score" id="global-score-display">-- / 20</div>
+                <div style="font-size: 11.5px; color: #475569;" id="global-score-details">
+                    Validation enseignant requise pour le déverrouillage de la note et du corrigé
+                </div>
+            </div>
+
+            <!-- Espace Validation Enseignant -->
+            <div class="prof-box">
+                <h4>Espace Réservé à l'Enseignant (Validation & Déchiffrement)</h4>
+
+                <!-- Évaluation C2 Poste de travail -->
+                <div
+                    style="margin-bottom: 10px; background: white; padding: 8px 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                    <strong id="label-prof-eval-c2" style="font-size: 12px; color: #1e3a8a;">Évaluation de la compétence C2 (Organisation du poste de travail) :</strong>
+                    <div style="display: flex; gap: 18px; margin-top: 6px; font-size: 12px;">
+                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                            <input type="checkbox" id="check-classeur" checked onchange="mettreAJourC2()">
+                            Classeur de cours présent & ouvert
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                            <input type="checkbox" id="check-stylo" checked onchange="mettreAJourC2()">
+                            Stylo & règle graduée présents
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Code Enseignant & Déclenchement -->
+                <div id="prof-auth-box" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <label for="prof-code" style="font-weight: 700; font-size: 12.5px; color: #92400e;">
+                        Code enseignant secret :
+                    </label>
+                    <input type="password" id="prof-code" placeholder="Code secret (4 chiffres)"
+                        autocomplete="new-password"
+                        autocorrect="off"
+                        autocapitalize="off"
+                        spellcheck="false"
+                        onkeydown="if(event.key==='Enter') validerTD()"
+                        style="width: 140px; padding: 6px 10px; border: 1.5px solid #d97706; border-radius: 4px; font-weight: bold; text-align: center;">
+                    <button type="button" onclick="validerTD()"
+                        style="background: #15803d; color: white; border: none; padding: 7px 14px; border-radius: 4px; font-weight: 700; font-size: 12.5px; cursor: pointer;">
+                        Valider le TD & Mettre à jour le Bilan
+                    </button>
+                    <div id="prof-error-msg"
+                        style="color: #dc2626; font-size: 11.5px; font-weight: bold; width: 100%; display: none;"></div>
+                </div>
+
+                <!-- Confirmation de validation -->
+                <div id="prof-validated-box"
+                    style="display: none; background: #dcfce7; border: 1.5px solid #86efac; border-radius: 6px; padding: 8px 12px; margin-top: 6px;">
+                    <strong style="color: #166534; font-size: 12px;">Dossier validé avec succès par M. DIAKHO !</strong>
+                    <div style="font-size: 11px; color: #14532d; margin-top: 2px;" id="sync-status-msg">
+                        Synchronisation temps réel Google Sheet en cours...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Double Sauvegarde : Bouton Enregistrement PDF Dossier Complet -->
+            <div style="margin-top: 12px; text-align: center;">
+                <button type="button" id="btn-print-dossier" onclick="exporterDossierPDF()" disabled
+                    style="background: #94a3b8; color: white; border: none; padding: 10px 24px; border-radius: 6px; font-size: 13px; font-weight: 800; cursor: not-allowed; opacity: 0.6; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;">
+                    📚 Enregistrer en PDF / Imprimer le Dossier Complet (6 pages)
+                </button>
+                <div id="print-locked-hint" style="font-size: 11px; color: #64748b; margin-top: 4px;">
+                    (Le téléchargement du PDF sera déverrouillé dès validation par le professeur)
+                </div>
+                <div id="saved-filename-display"
+                    style="font-size: 11.5px; color: #1e3a8a; font-weight: bold; margin-top: 4px;"></div>
+            </div>
+        </div>
+
+        <div class="page-footer">
+            <span>Lycée Professionnel — <span class="footer-filiere-tag">Bac Pro MELEC</span> | M. DIAKHO</span>
+            <span>Séquence 1 : Séance Échelle d'un document</span>
+            <span>Page 3 / 6</span>
+        </div>
+    </div>
+    <!-- FIN LIGNE 1 -->
+    </div>
+
+    <!-- LIGNE 2 : LES ACTIVITÉS TECHNIQUES EN-BAS (PAGES 4, 5 & 6) -->
+    <div class="pages-row pages-row-2" id="pages-row-2">
+
+    <!-- =========================================================================
+         PAGE 4 / 6 : ACTIVITÉ 1 — SYMBOLES & ORIENTATION GÉOGRAPHIQUE
+         ========================================================================= -->
+    <div class="a4-page" id="page-4-cas1">
+        <div>
+            <!-- En-tête Page 4 -->
+            <table class="header-table">
+                <tr>
+                    <td style="width: 25%; font-weight: bold; font-size: 12px; background: #f8fafc;" class="header-filiere-tag">
+                        Bac Pro MELEC
+                    </td>
+                    <td style="width: 50%;" class="header-title">
+                        ACTIVITÉ 1 : SYMBOLES & ORIENTATION DU PLAN
+                    </td>
+                    <td style="width: 25%; font-size: 12px; background: #f8fafc;">
+                        Feuille 4 / 6
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Question 1 : Symboles normalisés -->
+            <div class="question-card" style="margin-bottom: 8px;">
+                <div class="question-header">
+                    <div class="question-title">
+                        1 - Donner la signification des SYMBOLES repérés par les lettres suivantes sur le plan du bâtiment :
+                    </div>
+                    <span class="question-points">/ 14 pts</span>
+                </div>
+
+                <!-- Tableau 3 colonnes Rep / Signification -->
+                <table class="symbol-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 6%;">Rep</th>
+                            <th style="width: 27%;">SIGNIFICATION</th>
+                            <th style="width: 6%;">Rep</th>
+                            <th style="width: 27%;">SIGNIFICATION</th>
+                            <th style="width: 6%;">Rep</th>
+                            <th style="width: 28%;">SIGNIFICATION</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Ligne 1 : A, F, K -->
+                        <tr>
+                            <td class="rep-col">A</td>
+                            <td>
+                                <select class="symbol-select" data-qid="1_symb_A" onchange="calculerProgression()">
+<option value="">-- Choisir un symbole --</option>
+                                    <option value="Armoire">Armoire</option>
+                                    <option value="Baignoire">Baignoire</option>
+                                    <option value="Bidet">Bidet</option>
+                                    <option value="Commode">Commode</option>
+                                    <option value="Cuisinière">Cuisinière</option>
+                                    <option value="Évacuation des eaux pluviales">Évacuation des eaux pluviales</option>
+                                    <option value="Évier à égouttoir">Évier à égouttoir</option>
+                                    <option value="Fauteuil">Fauteuil</option>
+                                    <option value="Lavabo">Lavabo</option>
+                                    <option value="Lit 1 personne">Lit 1 personne</option>
+                                    <option value="Lit 2 personnes">Lit 2 personnes</option>
+                                    <option value="Placard fermé">Placard fermé</option>
+                                    <option value="Radiateur">Radiateur</option>
+                                    <option value="WC">WC</option>
+                                </select>
+                                <div class="feedback-box" id="fb-1_symb_A"></div>
+                            </td>
+                            <td class="rep-col">F</td>
+                            <td>
+                                <select class="symbol-select" data-qid="1_symb_F" onchange="calculerProgression()">
+<option value="">-- Choisir un symbole --</option>
+                                    <option value="Armoire">Armoire</option>
+                                    <option value="Baignoire">Baignoire</option>
+                                    <option value="Bidet">Bidet</option>
+                                    <option value="Commode">Commode</option>
+                                    <option value="Cuisinière">Cuisinière</option>
+                                    <option value="Évacuation des eaux pluviales">Évacuation des eaux pluviales</option>
+                                    <option value="Évier à égouttoir">Évier à égouttoir</option>
+                                    <option value="Fauteuil">Fauteuil</option>
+                                    <option value="Lavabo">Lavabo</option>
+                                    <option value="Lit 1 personne">Lit 1 personne</option>
+                                    <option value="Lit 2 personnes">Lit 2 personnes</option>
+                                    <option value="Placard fermé">Placard fermé</option>
+                                    <option value="Radiateur">Radiateur</option>
+                                    <option value="WC">WC</option>
+                                </select>
+                                <div class="feedback-box" id="fb-1_symb_F"></div>
+                            </td>
+                            <td class="rep-col">K</td>
+                            <td>
+                                <select class="symbol-select" data-qid="1_symb_K" onchange="calculerProgression()">
+<option value="">-- Choisir un symbole --</option>
+                                    <option value="Armoire">Armoire</option>
+                                    <option value="Baignoire">Baignoire</option>
+                                    <option value="Bidet">Bidet</option>
+                                    <option value="Commode">Commode</option>
+                                    <option value="Cuisinière">Cuisinière</option>
+                                    <option value="Évacuation des eaux pluviales">Évacuation des eaux pluviales</option>
+                                    <option value="Évier à égouttoir">Évier à égouttoir</option>
+                                    <option value="Fauteuil">Fauteuil</option>
+                                    <option value="Lavabo">Lavabo</option>
+                                    <option value="Lit 1 personne">Lit 1 personne</option>
+                                    <option value="Lit 2 personnes">Lit 2 personnes</option>
+                                    <option value="Placard fermé">Placard fermé</option>
+                                    <option value="Radiateur">Radiateur</option>
+                                    <option value="WC">WC</option>
+                                </select>
+                                <div class="feedback-box" id="fb-1_symb_K"></div>
+                            </td>
+                        </tr>
+
+                        <!-- Ligne 2 : B, G, L -->
+                        <tr>
+                            <td class="rep-col">B</td>
+                            <td>
+                                <select class="symbol-select" data-qid="1_symb_B" onchange="calculerProgression()">
+<option value="">-- Choisir un symbole --</option>
+                                    <option value="Armoire">Armoire</option>
+                                    <option value="Baignoire">Baignoire</option>
+                                    <option value="Bidet">Bidet</option>
+                                    <option value="Commode">Commode</option>
+                                    <option value="Cuisinière">Cuisinière</option>
+                                    <option value="Évacuation des eaux pluviales">Évacuation des eaux pluviales</option>
+                                    <option value="Évier à égouttoir">Évier à égouttoir</option>
+                                    <option value="Fauteuil">Fauteuil</option>
+                                    <option value="Lavabo">Lavabo</option>
+                                    <option value="Lit 1 personne">Lit 1 personne</option>
+                                    <option value="Lit 2 personnes">Lit 2 personnes</option>
+                                    <option value="Placard fermé">Placard fermé</option>
+                                    <option value="Radiateur">Radiateur</option>
+                                    <option value="WC">WC</option>
+                                </select>
+                                <div class="feedback-box" id="fb-1_symb_B"></div>
+                            </td>
+                            <td class="rep-col">G</td>
+                            <td>
+                                <select class="symbol-select" data-qid="1_symb_G" onchange="calculerProgression()">
+<option value="">-- Choisir un symbole --</option>
+                                    <option value="Armoire">Armoire</option>
+                                    <option value="Baignoire">Baignoire</option>
+                                    <option value="Bidet">Bidet</option>
+                                    <option value="Commode">Commode</option>
+                                    <option value="Cuisinière">Cuisinière</option>
+                                    <option value="Évacuation des eaux pluviales">Évacuation des eaux pluviales</option>
+                                    <option value="Évier à égouttoir">Évier à égouttoir</option>
+                                    <option value="Fauteuil">Fauteuil</option>
+                                    <option value="Lavabo">Lavabo</option>
+                                    <option value="Lit 1 personne">Lit 1 personne</option>
+                                    <option value="Lit 2 personnes">Lit 2 personnes</option>
+                                    <option value="Placard fermé">Placard fermé</option>
+                                    <option value="Radiateur">Radiateur</option>
+                                    <option value="WC">WC</option>
+                                </select>
+                                <div class="feedback-box" id="fb-1_symb_G"></div>
+                            </td>
+                            <td class="rep-col">L</td>
+                            <td>
+                                <select class="symbol-select" data-qid="1_symb_L" onchange="calculerProgression()">
+<option value="">-- Choisir un symbole --</option>
+                                    <option value="Armoire">Armoire</option>
+                                    <option value="Baignoire">Baignoire</option>
+                                    <option value="Bidet">Bidet</option>
+                                    <option value="Commode">Commode</option>
+                                    <option value="Cuisinière">Cuisinière</option>
+                                    <option value="Évacuation des eaux pluviales">Évacuation des eaux pluviales</option>
+                                    <option value="Évier à égouttoir">Évier à égouttoir</option>
+                                    <option value="Fauteuil">Fauteuil</option>
+                                    <option value="Lavabo">Lavabo</option>
+                                    <option value="Lit 1 personne">Lit 1 personne</option>
+                                    <option value="Lit 2 personnes">Lit 2 personnes</option>
+                                    <option value="Placard fermé">Placard fermé</option>
+                                    <option value="Radiateur">Radiateur</option>
+                                    <option value="WC">WC</option>
+                                </select>
+                                <div class="feedback-box" id="fb-1_symb_L"></div>
+                            </td>
+                        </tr>
+
+                        <!-- Ligne 3 : C, H, M -->
+                        <tr>
+                            <td class="rep-col">C</td>
+                            <td>
+                                <select class="symbol-select" data-qid="1_symb_C" onchange="calculerProgression()">
+<option value="">-- Choisir un symbole --</option>
+                                    <option value="Armoire">Armoire</option>
+                                    <option value="Baignoire">Baignoire</option>
+                                    <option value="Bidet">Bidet</option>
+                                    <option value="Commode">Commode</option>
+                                    <option value="Cuisinière">Cuisinière</option>
+                                    <option value="Évacuation des eaux pluviales">Évacuation des eaux pluviales</option>
+                                    <option value="Évier à égouttoir">Évier à égouttoir</option>
+                                    <option value="Fauteuil">Fauteuil</option>
+                                    <option value="Lavabo">Lavabo</option>
+                                    <option value="Lit 1 personne">Lit 1 personne</option>
+                                    <option value="Lit 2 personnes">Lit 2 personnes</option>
+                                    <option value="Placard fermé">Placard fermé</option>
+                                    <option value="Radiateur">Radiateur</option>
+                                    <option value="WC">WC</option>
+                                </select>
+                                <div class="feedback-box" id="fb-1_symb_C"></div>
+                            </td>
+                            <td class="rep-col">H</td>
+                            <td>
+                                <select class="symbol-select" data-qid="1_symb_H" onchange="calculerProgression()">
+<option value="">-- Choisir un symbole --</option>
+                                    <option value="Armoire">Armoire</option>
+                                    <option value="Baignoire">Baignoire</option>
+                                    <option value="Bidet">Bidet</option>
+                                    <option value="Commode">Commode</option>
+                                    <option value="Cuisinière">Cuisinière</option>
+                                    <option value="Évacuation des eaux pluviales">Évacuation des eaux pluviales</option>
+                                    <option value="Évier à égouttoir">Évier à égouttoir</option>
+                                    <option value="Fauteuil">Fauteuil</option>
+                                    <option value="Lavabo">Lavabo</option>
+                                    <option value="Lit 1 personne">Lit 1 personne</option>
+                                    <option value="Lit 2 personnes">Lit 2 personnes</option>
+                                    <option value="Placard fermé">Placard fermé</option>
+                                    <option value="Radiateur">Radiateur</option>
+                                    <option value="WC">WC</option>
+                                </select>
+                                <div class="feedback-box" id="fb-1_symb_H"></div>
+                            </td>
+                            <td class="rep-col">M</td>
+                            <td>
+                                <select class="symbol-select" data-qid="1_symb_M" onchange="calculerProgression()">
+<option value="">-- Choisir un symbole --</option>
+                                    <option value="Armoire">Armoire</option>
+                                    <option value="Baignoire">Baignoire</option>
+                                    <option value="Bidet">Bidet</option>
+                                    <option value="Commode">Commode</option>
+                                    <option value="Cuisinière">Cuisinière</option>
+                                    <option value="Évacuation des eaux pluviales">Évacuation des eaux pluviales</option>
+                                    <option value="Évier à égouttoir">Évier à égouttoir</option>
+                                    <option value="Fauteuil">Fauteuil</option>
+                                    <option value="Lavabo">Lavabo</option>
+                                    <option value="Lit 1 personne">Lit 1 personne</option>
+                                    <option value="Lit 2 personnes">Lit 2 personnes</option>
+                                    <option value="Placard fermé">Placard fermé</option>
+                                    <option value="Radiateur">Radiateur</option>
+                                    <option value="WC">WC</option>
+                                </select>
+                                <div class="feedback-box" id="fb-1_symb_M"></div>
+                            </td>
+                        </tr>
+
+                        <!-- Ligne 4 : D, I, N -->
+                        <tr>
+                            <td class="rep-col">D</td>
+                            <td>
+                                <select class="symbol-select" data-qid="1_symb_D" onchange="calculerProgression()">
+<option value="">-- Choisir un symbole --</option>
+                                    <option value="Armoire">Armoire</option>
+                                    <option value="Baignoire">Baignoire</option>
+                                    <option value="Bidet">Bidet</option>
+                                    <option value="Commode">Commode</option>
+                                    <option value="Cuisinière">Cuisinière</option>
+                                    <option value="Évacuation des eaux pluviales">Évacuation des eaux pluviales</option>
+                                    <option value="Évier à égouttoir">Évier à égouttoir</option>
+                                    <option value="Fauteuil">Fauteuil</option>
+                                    <option value="Lavabo">Lavabo</option>
+                                    <option value="Lit 1 personne">Lit 1 personne</option>
+                                    <option value="Lit 2 personnes">Lit 2 personnes</option>
+                                    <option value="Placard fermé">Placard fermé</option>
+                                    <option value="Radiateur">Radiateur</option>
+                                    <option value="WC">WC</option>
+                                </select>
+                                <div class="feedback-box" id="fb-1_symb_D"></div>
+                            </td>
+                            <td class="rep-col">I</td>
+                            <td>
+                                <select class="symbol-select" data-qid="1_symb_I" onchange="calculerProgression()">
+<option value="">-- Choisir un symbole --</option>
+                                    <option value="Armoire">Armoire</option>
+                                    <option value="Baignoire">Baignoire</option>
+                                    <option value="Bidet">Bidet</option>
+                                    <option value="Commode">Commode</option>
+                                    <option value="Cuisinière">Cuisinière</option>
+                                    <option value="Évacuation des eaux pluviales">Évacuation des eaux pluviales</option>
+                                    <option value="Évier à égouttoir">Évier à égouttoir</option>
+                                    <option value="Fauteuil">Fauteuil</option>
+                                    <option value="Lavabo">Lavabo</option>
+                                    <option value="Lit 1 personne">Lit 1 personne</option>
+                                    <option value="Lit 2 personnes">Lit 2 personnes</option>
+                                    <option value="Placard fermé">Placard fermé</option>
+                                    <option value="Radiateur">Radiateur</option>
+                                    <option value="WC">WC</option>
+                                </select>
+                                <div class="feedback-box" id="fb-1_symb_I"></div>
+                            </td>
+                            <td class="rep-col">N</td>
+                            <td>
+                                <select class="symbol-select" data-qid="1_symb_N" onchange="calculerProgression()">
+<option value="">-- Choisir un symbole --</option>
+                                    <option value="Armoire">Armoire</option>
+                                    <option value="Baignoire">Baignoire</option>
+                                    <option value="Bidet">Bidet</option>
+                                    <option value="Commode">Commode</option>
+                                    <option value="Cuisinière">Cuisinière</option>
+                                    <option value="Évacuation des eaux pluviales">Évacuation des eaux pluviales</option>
+                                    <option value="Évier à égouttoir">Évier à égouttoir</option>
+                                    <option value="Fauteuil">Fauteuil</option>
+                                    <option value="Lavabo">Lavabo</option>
+                                    <option value="Lit 1 personne">Lit 1 personne</option>
+                                    <option value="Lit 2 personnes">Lit 2 personnes</option>
+                                    <option value="Placard fermé">Placard fermé</option>
+                                    <option value="Radiateur">Radiateur</option>
+                                    <option value="WC">WC</option>
+                                </select>
+                                <div class="feedback-box" id="fb-1_symb_N"></div>
+                            </td>
+                        </tr>
+
+                        <!-- Ligne 5 : E, J, Vide -->
+                        <tr>
+                            <td class="rep-col">E</td>
+                            <td>
+                                <select class="symbol-select" data-qid="1_symb_E" onchange="calculerProgression()">
+<option value="">-- Choisir un symbole --</option>
+                                    <option value="Armoire">Armoire</option>
+                                    <option value="Baignoire">Baignoire</option>
+                                    <option value="Bidet">Bidet</option>
+                                    <option value="Commode">Commode</option>
+                                    <option value="Cuisinière">Cuisinière</option>
+                                    <option value="Évacuation des eaux pluviales">Évacuation des eaux pluviales</option>
+                                    <option value="Évier à égouttoir">Évier à égouttoir</option>
+                                    <option value="Fauteuil">Fauteuil</option>
+                                    <option value="Lavabo">Lavabo</option>
+                                    <option value="Lit 1 personne">Lit 1 personne</option>
+                                    <option value="Lit 2 personnes">Lit 2 personnes</option>
+                                    <option value="Placard fermé">Placard fermé</option>
+                                    <option value="Radiateur">Radiateur</option>
+                                    <option value="WC">WC</option>
+                                </select>
+                                <div class="feedback-box" id="fb-1_symb_E"></div>
+                            </td>
+                            <td class="rep-col">J</td>
+                            <td>
+                                <select class="symbol-select" data-qid="1_symb_J" onchange="calculerProgression()">
+<option value="">-- Choisir un symbole --</option>
+                                    <option value="Armoire">Armoire</option>
+                                    <option value="Baignoire">Baignoire</option>
+                                    <option value="Bidet">Bidet</option>
+                                    <option value="Commode">Commode</option>
+                                    <option value="Cuisinière">Cuisinière</option>
+                                    <option value="Évacuation des eaux pluviales">Évacuation des eaux pluviales</option>
+                                    <option value="Évier à égouttoir">Évier à égouttoir</option>
+                                    <option value="Fauteuil">Fauteuil</option>
+                                    <option value="Lavabo">Lavabo</option>
+                                    <option value="Lit 1 personne">Lit 1 personne</option>
+                                    <option value="Lit 2 personnes">Lit 2 personnes</option>
+                                    <option value="Placard fermé">Placard fermé</option>
+                                    <option value="Radiateur">Radiateur</option>
+                                    <option value="WC">WC</option>
+                                </select>
+                                <div class="feedback-box" id="fb-1_symb_J"></div>
+                            </td>
+                            <td colspan="2" style="background: #f8fafc; text-align: center; color: #94a3b8; font-size: 11px;">
+                                —
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Question 2 : Orientation géographique -->
+            <div class="question-card">
+                <div class="question-header">
+                    <div class="question-title">
+                        2 - Indiquer l'orientation géographique de : <span style="font-weight: normal; font-size: 11.5px; color: #64748b;">(exemple de réponse attendue : Sud-Ouest...)</span>
+                    </div>
+                    <span class="question-points">/ 12 pts</span>
+                </div>
+
+                <div class="orient-grid">
+                    <!-- Colonne 1 -->
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <div class="orient-item">
+                            <div class="orient-label">➤ la cuisine :</div>
+                            <select class="orient-select" data-qid="2_orient_cuisine" onchange="calculerProgression()">
+<option value="">-- Choisir l'orientation --</option>
+                            <option value="Nord">Nord</option>
+                            <option value="Sud">Sud</option>
+                            <option value="Est">Est</option>
+                            <option value="Ouest">Ouest</option>
+                            <option value="Nord-Est">Nord-Est</option>
+                            <option value="Nord-Ouest">Nord-Ouest</option>
+                            <option value="Sud-Est">Sud-Est</option>
+                            <option value="Sud-Ouest">Sud-Ouest</option>
+                            </select>
+                            <div class="feedback-box" id="fb-2_orient_cuisine"></div>
+                        </div>
+
+                        <div class="orient-item">
+                            <div class="orient-label">➤ la chambre <span class="circle-num">1</span> :</div>
+                            <select class="orient-select" data-qid="2_orient_ch1" onchange="calculerProgression()">
+<option value="">-- Choisir l'orientation --</option>
+                            <option value="Nord">Nord</option>
+                            <option value="Sud">Sud</option>
+                            <option value="Est">Est</option>
+                            <option value="Ouest">Ouest</option>
+                            <option value="Nord-Est">Nord-Est</option>
+                            <option value="Nord-Ouest">Nord-Ouest</option>
+                            <option value="Sud-Est">Sud-Est</option>
+                            <option value="Sud-Ouest">Sud-Ouest</option>
+                            </select>
+                            <div class="feedback-box" id="fb-2_orient_ch1"></div>
+                        </div>
+
+                        <div class="orient-item">
+                            <div class="orient-label">➤ la chambre <span class="circle-num">2</span> :</div>
+                            <select class="orient-select" data-qid="2_orient_ch2" onchange="calculerProgression()">
+<option value="">-- Choisir l'orientation --</option>
+                            <option value="Nord">Nord</option>
+                            <option value="Sud">Sud</option>
+                            <option value="Est">Est</option>
+                            <option value="Ouest">Ouest</option>
+                            <option value="Nord-Est">Nord-Est</option>
+                            <option value="Nord-Ouest">Nord-Ouest</option>
+                            <option value="Sud-Est">Sud-Est</option>
+                            <option value="Sud-Ouest">Sud-Ouest</option>
+                            </select>
+                            <div class="feedback-box" id="fb-2_orient_ch2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Colonne 2 -->
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <div class="orient-item">
+                            <div class="orient-label">➤ la porte d'entrée :</div>
+                            <select class="orient-select" data-qid="2_orient_porte" onchange="calculerProgression()">
+<option value="">-- Choisir l'orientation --</option>
+                            <option value="Nord">Nord</option>
+                            <option value="Sud">Sud</option>
+                            <option value="Est">Est</option>
+                            <option value="Ouest">Ouest</option>
+                            <option value="Nord-Est">Nord-Est</option>
+                            <option value="Nord-Ouest">Nord-Ouest</option>
+                            <option value="Sud-Est">Sud-Est</option>
+                            <option value="Sud-Ouest">Sud-Ouest</option>
+                            </select>
+                            <div class="feedback-box" id="fb-2_orient_porte"></div>
+                        </div>
+
+                        <div class="orient-item">
+                            <div class="orient-label">➤ la salle de bains :</div>
+                            <select class="orient-select" data-qid="2_orient_sdb" onchange="calculerProgression()">
+<option value="">-- Choisir l'orientation --</option>
+                            <option value="Nord">Nord</option>
+                            <option value="Sud">Sud</option>
+                            <option value="Est">Est</option>
+                            <option value="Ouest">Ouest</option>
+                            <option value="Nord-Est">Nord-Est</option>
+                            <option value="Nord-Ouest">Nord-Ouest</option>
+                            <option value="Sud-Est">Sud-Est</option>
+                            <option value="Sud-Ouest">Sud-Ouest</option>
+                            </select>
+                            <div class="feedback-box" id="fb-2_orient_sdb"></div>
+                        </div>
+
+                        <div class="orient-item">
+                            <div class="orient-label">➤ la fenêtre du séjour :</div>
+                            <select class="orient-select" data-qid="2_orient_sejour" onchange="calculerProgression()">
+<option value="">-- Choisir l'orientation --</option>
+                            <option value="Nord">Nord</option>
+                            <option value="Sud">Sud</option>
+                            <option value="Est">Est</option>
+                            <option value="Ouest">Ouest</option>
+                            <option value="Nord-Est">Nord-Est</option>
+                            <option value="Nord-Ouest">Nord-Ouest</option>
+                            <option value="Sud-Est">Sud-Est</option>
+                            <option value="Sud-Ouest">Sud-Ouest</option>
+                            </select>
+                            <div class="feedback-box" id="fb-2_orient_sejour"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-footer">
+            <span>Lycée Professionnel — <span class="footer-filiere-tag">Bac Pro MELEC</span> | M. DIAKHO</span>
+            <span>Lecture de plans : Vues en plan</span>
+            <span>Page 4 / 6</span>
+        </div>
+    </div>
+
+    <!-- =========================================================================
+         PAGE 5 / 6 : ACTIVITÉ 2 — CHAUFFAGE & SUPERFICIES
+         ========================================================================= -->
+    <div class="a4-page" id="page-5-cas2">
+        <div>
+            <!-- En-tête Page 5 -->
+            <table class="header-table">
+                <tr>
+                    <td style="width: 25%; font-weight: bold; font-size: 12px; background: #f8fafc;" class="header-filiere-tag">
+                        Bac Pro MELEC
+                    </td>
+                    <td style="width: 50%;" class="header-title">
+                        ACTIVITÉ 2 : CHAUFFAGE & SUPERFICIES
+                    </td>
+                    <td style="width: 25%; font-size: 12px; background: #f8fafc;">
+                        Feuille 5 / 6
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Question 6 : Pièces chauffées -->
+            <div class="question-card" style="margin-bottom: 8px;">
+                <div class="question-header">
+                    <div class="question-title">
+                        3 - Préciser le nombre de pièces chauffées par la cheminée <strong>(toutes portes fermées)</strong> :
+                    </div>
+                    <span class="question-points">/ 1 pt</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px; padding: 6px 12px; background: #f8fafc; border-radius: 4px; border: 1px solid #e2e8f0;">
+                    <label style="font-weight: 700; font-size: 12px; color: #1e3a8a;">Nombre de pièces =</label>
+                    <input type="text" class="val-input" style="width: 70px; text-align: center;" data-qid="3_pieces_cheminee" oninput="calculerProgression()">
+                    <span class="unit-badge">pièce(s)</span>
+                    <div class="feedback-box" id="fb-3_pieces_cheminee"></div>
+                </div>
+            </div>
+
+            <!-- Question 7 : Évacuations d'eaux pluviales -->
+            <div class="question-card" style="margin-bottom: 8px;">
+                <div class="question-header">
+                    <div class="question-title">
+                        4 - Préciser le nombre d'évacuations d'eaux pluviales :
+                    </div>
+                    <span class="question-points">/ 1 pt</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px; padding: 6px 12px; background: #f8fafc; border-radius: 4px; border: 1px solid #e2e8f0;">
+                    <label style="font-weight: 700; font-size: 12px; color: #1e3a8a;">Nombre d'évacuations =</label>
+                    <input type="text" class="val-input" style="width: 70px; text-align: center;" data-qid="4_evac_pluviales" oninput="calculerProgression()">
+                    <span class="unit-badge">évacuation(s)</span>
+                    <div class="feedback-box" id="fb-4_evac_pluviales"></div>
+                </div>
+            </div>
+
+            <!-- Question 5 : Superficie chambre 2 -->
+            <div class="question-card" style="margin-bottom: 8px;">
+                <div class="question-header">
+                    <div class="question-title">
+                        5 - Calculer la superficie de la chambre <span class="circle-num">2</span> :
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <button type="button" class="btn-hint" onclick="activerIndice('h_q5')">💡 Indice Q5</button>
+                        <span class="question-points">/ 3 pts</span>
+                    </div>
+                </div>
+                <div class="hint-text" id="h_q5"><strong>💡 Indice :</strong> Formule : Surface = Longueur × Largeur</div>
+
+                <div class="calc-card-row">
+                    <label style="font-weight: 700; font-size: 12px; color: #1e3a8a; min-width: 60px;">Calcul :</label>
+                    <div style="flex: 1; min-width: 140px;">
+                        <input type="text" class="calc-input" data-qid="5_surf_ch2_calc" oninput="calculerProgression()">
+                        <div class="feedback-box" id="fb-5_surf_ch2_calc"></div>
+                    </div>
+                    <span style="font-weight: bold; font-size: 14px;">=</span>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <input type="text" class="val-input" style="width: 90px; text-align: center;" data-qid="5_surf_ch2_val" oninput="calculerProgression()">
+                        <span class="unit-badge">m²</span>
+                        <div class="feedback-box" id="fb-5_surf_ch2_val"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question 6 : Superficie chambre 1 -->
+            <div class="question-card">
+                <div class="question-header">
+                    <div class="question-title">
+                        6 - Calculer la superficie de la chambre <span class="circle-num">1</span> :
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <button type="button" class="btn-hint" onclick="activerIndice('h_q6')">💡 Indice Q6</button>
+                        <span class="question-points">/ 3 pts</span>
+                    </div>
+                </div>
+                <div class="hint-text" id="h_q6"><strong>💡 Indice :</strong> Formule : Surface = Longueur × Largeur</div>
+
+                <div class="calc-card-row">
+                    <label style="font-weight: 700; font-size: 12px; color: #1e3a8a; min-width: 60px;">Calcul :</label>
+                    <div style="flex: 1; min-width: 140px;">
+                        <input type="text" class="calc-input" data-qid="6_surf_ch1_calc" oninput="calculerProgression()">
+                        <div class="feedback-box" id="fb-6_surf_ch1_calc"></div>
+                    </div>
+                    <span style="font-weight: bold; font-size: 14px;">=</span>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <input type="text" class="val-input" style="width: 90px; text-align: center;" data-qid="6_surf_ch1_val" oninput="calculerProgression()">
+                        <span class="unit-badge">m²</span>
+                        <div class="feedback-box" id="fb-6_surf_ch1_val"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-footer">
+            <span>Lycée Professionnel — <span class="footer-filiere-tag">Bac Pro MELEC</span> | M. DIAKHO</span>
+            <span>Lecture de plans : Vues en plan</span>
+            <span>Page 5 / 6</span>
+        </div>
+    </div>
+
+    <!-- =========================================================================
+         PAGE 6 / 6 : ACTIVITÉ 3 — ÉCHELLE & COTES RÉELLES
+         ========================================================================= -->
+    <div class="a4-page" id="page-6-cas3">
+        <div>
+            <!-- En-tête Page 6 -->
+            <table class="header-table">
+                <tr>
+                    <td style="width: 25%; font-weight: bold; font-size: 12px; background: #f8fafc;" class="header-filiere-tag">
+                        Bac Pro MELEC
+                    </td>
+                    <td style="width: 50%;" class="header-title">
+                        ACTIVITÉ 3 : ÉCHELLE & COTES RÉELLES
+                    </td>
+                    <td style="width: 25%; font-size: 12px; background: #f8fafc;">
+                        Feuille 6 / 6
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Question 7 : Échelle du plan -->
+            <div class="question-card" style="margin-bottom: 10px;">
+                <div class="question-header">
+                    <div class="question-title">
+                        7 - Indiquer l'échelle du plan :
+                    </div>
+                    <span class="question-points">/ 1 pt</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px; padding: 8px 12px; background: #f8fafc; border-radius: 4px; border: 1px solid #e2e8f0;">
+                    <label style="font-weight: 700; font-size: 12px; color: #1e3a8a;">Échelle du plan =</label>
+                    <input type="text" class="val-input" style="width: 140px; text-align: center; font-weight: bold;" data-qid="7_echelle_plan" oninput="calculerProgression()">
+                    <div class="feedback-box" id="fb-7_echelle_plan"></div>
+                </div>
+            </div>
+
+            <!-- Question 8 : Dimension réelle pour 5 cm -->
+            <div class="question-card" style="margin-bottom: 10px;">
+                <div class="question-header">
+                    <div class="question-title">
+                        8 - Donner la dimension réelle (en m.) correspondant à 5 cm mesuré sur le plan :
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <button type="button" class="btn-hint" onclick="activerIndice('h_q8')">💡 Indice Q8</button>
+                        <span class="question-points">/ 2 pts</span>
+                    </div>
+                </div>
+                <div class="hint-text" id="h_q8"><strong>💡 Indice :</strong> Formule : Dimension réelle = Mesure sur le plan × Dénominateur de l'échelle</div>
+
+                <div class="calc-card-row">
+                    <label style="font-weight: 700; font-size: 12px; color: #1e3a8a; min-width: 110px;">Calcul détaillé :</label>
+                    <div style="flex: 1; min-width: 160px;">
+                        <input type="text" class="calc-input" data-qid="8_dim_reelle_calc" oninput="calculerProgression()">
+                        <div class="feedback-box" id="fb-8_dim_reelle_calc"></div>
+                    </div>
+                    <span style="font-weight: bold; font-size: 14px;">=</span>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <input type="text" class="val-input" style="width: 80px; text-align: center;" data-qid="8_dim_reelle_val" oninput="calculerProgression()">
+                        <span class="unit-badge">m</span>
+                        <div class="feedback-box" id="fb-8_dim_reelle_val"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question 9 : Profondeur du placard N -->
+            <div class="question-card">
+                <div class="question-header">
+                    <div class="question-title">
+                        9 - Déterminer la profondeur du placard <strong>N</strong> :
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <button type="button" class="btn-hint" onclick="activerIndice('h_q9')">💡 Indice Q9</button>
+                        <span class="question-points">/ 2 pts</span>
+                    </div>
+                </div>
+                <div class="hint-text" id="h_q9"><strong>💡 Indice :</strong> Formule : Dimension réelle = Mesure sur le plan × Dénominateur de l'échelle</div>
+
+                <div class="calc-card-row">
+                    <label style="font-weight: 700; font-size: 12px; color: #1e3a8a; min-width: 110px;">Calcul détaillé :</label>
+                    <div style="flex: 1; min-width: 160px;">
+                        <input type="text" class="calc-input" data-qid="9_placard_calc" oninput="calculerProgression()">
+                        <div class="feedback-box" id="fb-9_placard_calc"></div>
+                    </div>
+                    <span style="font-weight: bold; font-size: 14px;">=</span>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <input type="text" class="val-input" style="width: 80px; text-align: center;" data-qid="9_placard_val" oninput="calculerProgression()">
+                        <span class="unit-badge">cm</span>
+                        <div class="feedback-box" id="fb-9_placard_val"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-footer">
+            <span>Lycée Professionnel — <span class="footer-filiere-tag">Bac Pro MELEC</span> | M. DIAKHO</span>
+            <span>Lecture de plans : Vues en plan</span>
+            <span>Page 6 / 6</span>
+        </div>
+    </div>
+
+    </div>
+    <!-- FIN LIGNE 2 -->
+    </div>
+</main>
+<!-- FIN CONTENEUR PRINCIPAL -->
+
+
+    <!-- =========================================================================
+         MODALE DE ZOOM INTERACTIF POUR LES PLANS TECHNIQUES ARCHITECTURAUX
+         ========================================================================= -->
+    <div class="zoom-modal" id="zoom-modal" onclick="gererClicBackdropZoom(event)">
+        <div class="zoom-modal-header">
+            <div class="zoom-modal-title" id="zoom-modal-title">Plan agrandi</div>
+            <div class="zoom-modal-controls">
+                <button type="button" class="zoom-ctrl-btn" onclick="zoomIn()" title="Zoomer">+</button>
+                <span class="zoom-level-badge" id="zoom-level-badge">100%</span>
+                <button type="button" class="zoom-ctrl-btn" onclick="zoomOut()" title="Dézoomer">−</button>
+                <button type="button" class="zoom-ctrl-btn" onclick="zoomReset()" title="Réinitialiser">Ajuster</button>
+                <button type="button" class="zoom-ctrl-btn zoom-close-btn" onclick="fermerZoomModal()"
+                    title="Fermer (Échap)">✕ Fermer</button>
+            </div>
+        </div>
+        <div class="zoom-modal-body" id="zoom-modal-body">
+            <img id="zoom-modal-img" class="zoom-modal-img" src="" alt="Agrandissement plan">
+            <div class="zoom-instruction-bar">
+                Molette pour zoomer • Glisser pour déplacer le plan • Double-clic pour zoomer • Échap pour fermer
+            </div>
+        </div>
+    </div>
+
+
+    <!-- =========================================================================
+         MOTEUR JAVASCRIPT : SÉCURITÉ RC4, INDICES OPTION 1 & DOUBLE SAUVEGARDE
+         ========================================================================= -->
+    <script>
+        // -------------------------------------------------------------------------
+        // SÉCURITÉ ANTI-TRICHE : DÉSACTIVATION F12 / INSPECTER / CLIC DROIT
+        // -------------------------------------------------------------------------
+        document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'F12' ||
+                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+                (e.ctrlKey && (e.key === 'u' || e.key === 'U'))) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // -------------------------------------------------------------------------
+        // GESTION DU ZOOM INTERACTIF (MODALE PLEIN ÉCRAN & DÉPLACEMENT)
+        // -------------------------------------------------------------------------
+        let currentZoom = 1;
+        let panX = 0;
+        let panY = 0;
+        let isPanning = false;
+        let startPanX = 0;
+        let startPanY = 0;
+
+        function ouvrirZoomModal(src, title) {
+            const modal = document.getElementById('zoom-modal');
+            const img = document.getElementById('zoom-modal-img');
+            const titleElem = document.getElementById('zoom-modal-title');
+
+            img.src = src;
+            titleElem.innerText = title || "Plan agrandi";
+            currentZoom = 1;
+            panX = 0;
+            panY = 0;
+            appliquerTransformZoom();
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function fermerZoomModal() {
+            const modal = document.getElementById('zoom-modal');
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        function gererClicBackdropZoom(e) {
+            if (e.target.id === 'zoom-modal' || e.target.id === 'zoom-modal-body') {
+                fermerZoomModal();
+            }
+        }
+
+        function zoomIn() {
+            currentZoom = Math.min(4, Math.round((currentZoom + 0.25) * 100) / 100);
+            appliquerTransformZoom();
+        }
+
+        function zoomOut() {
+            currentZoom = Math.max(0.5, Math.round((currentZoom - 0.25) * 100) / 100);
+            appliquerTransformZoom();
+        }
+
+        function zoomReset() {
+            currentZoom = 1;
+            panX = 0;
+            panY = 0;
+            appliquerTransformZoom();
+        }
+
+        function appliquerTransformZoom() {
+            const img = document.getElementById('zoom-modal-img');
+            const badge = document.getElementById('zoom-level-badge');
+            if (img) img.style.transform = `translate(${panX}px, ${panY}px) scale(${currentZoom})`;
+            if (badge) badge.innerText = Math.round(currentZoom * 100) + '%';
+        }
+
+        // Écouteurs de pan et molette pour le zoom
+        window.addEventListener('DOMContentLoaded', () => {
+            const zoomBody = document.getElementById('zoom-modal-body');
+            const zoomImg = document.getElementById('zoom-modal-img');
+
+            if (zoomBody && zoomImg) {
+                zoomBody.addEventListener('mousedown', (e) => {
+                    if (e.target.closest('.zoom-modal-header') || e.target.tagName === 'BUTTON') return;
+                    isPanning = true;
+                    startPanX = e.clientX - panX;
+                    startPanY = e.clientY - panY;
+                    zoomBody.classList.add('grabbing');
+                });
+
+                window.addEventListener('mousemove', (e) => {
+                    if (!isPanning) return;
+                    panX = e.clientX - startPanX;
+                    panY = e.clientY - startPanY;
+                    appliquerTransformZoom();
+                });
+
+                window.addEventListener('mouseup', () => {
+                    isPanning = false;
+                    zoomBody.classList.remove('grabbing');
+                });
+
+                zoomBody.addEventListener('wheel', (e) => {
+                    e.preventDefault();
+                    if (e.deltaY < 0) {
+                        currentZoom = Math.min(4, Math.round((currentZoom + 0.2) * 100) / 100);
+                    } else {
+                        currentZoom = Math.max(0.5, Math.round((currentZoom - 0.2) * 100) / 100);
+                    }
+                    appliquerTransformZoom();
+                }, { passive: false });
+
+                zoomImg.addEventListener('dblclick', () => {
+                    if (currentZoom > 1.2) {
+                        zoomReset();
+                    } else {
+                        currentZoom = 2;
+                        appliquerTransformZoom();
+                    }
+                });
+            }
+
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    fermerZoomModal();
+                }
+            });
+        });
+
+        // -------------------------------------------------------------------------
+        // CORRIGÉ CHIFFRÉ RC4 DROP 512 (Sécurité cryptographique locale)
+        // -------------------------------------------------------------------------
+        const CORRIGE_ENCRYPTE = "r8wjJ62TBGJd0dGFRyxczbtxB79Q/bTuKtGSdSgSZmLAOdlbJxYAmjrVIvuR++tptfh4VawBpXKoanSNFilqEc8Q/SpmbyhNALLC7R4Dh1sjKFcVxO3H/y676wSu4Wqr8No7bJWCJVGbl8/lf3QuZ8RjXd74kKrcmS5s+eMIm6EosAgxpiiN8O9TJBmHqPsI21QTYb/fP11T+dmvPSHMWt42cs64txydYrOBqS/1+bBGclaANZQ37vqTOT+iyW9fO1Y0GZI9cxrtJEOutOZZq3mV0YNPD5e+vr2xdf+38vLfNnz3iOoeT2fYo8kQuYd23Hgvh7Q1zi+CHesYpbdpfHKPUoUvqVJysZkvjDZ6Olt6VPoFmrU/ThFgcVq2hoFgjIBMH1IvMcLJpjm94347kZGRPLZ7pMM1zcV/Z82ili0Nc/wodc7ChcRpGJp1ehcb081zl+epy327Iey7UTwhZ9z5zJSKg7X7AZ6AomFMr8YHl6ijhhtexOMIfuzF9wBI4VYr0T90LKwLy1FCQQ8JoQ0/f3dU7f2mxLCh2y4iqI2l318YGcOUfWhA7wWMEwKACKutv2FYVDTe23CkRsNpJ+5u/LiNLN+tv9Vo5G1jcKPeQLEWsjm1/9SQZsSwUYvYjC0wjpUvVhhpRoD1jacgIGB2C5kHWwzbaTJ/c4hfSGvOs7UeQk+/OA1ah6NarSyviruXEnkmGpRfSFEyLpJRAAXFR/nCVlG8eTXWetv+UVtqcWP0Seut2L/TwltQ3l2NT+R0DmlYjMj/6qTlDRR4oNE/bPdQgzln9oZqRffhqeNZtsMv6teHgu6VlAerUvlgozx2RZyw3DKDoTmsfBK+FQbDul0HN6k8k/6PFyyr35r89tzLaY7YPAjZNr+SFF5ivjvvVPgFYBRx7gmiUw2mEo3FkKEnTmVZGoxVjurFlgCYjnDvhBtQe+eF8wVORG1FEzguR+NIW6h6gaQVkA5UaGAyNjVYoPR+gcpBOl2X0IHgqZ1lkMgIJrnYK9uIvA+rsXlRKgFsFegTo7TsPqN7NYtrLFDP3W8Ri+ymlmkdGzj6y1qvv5tD5iAqeWEcPJRQy/FBf+3Pq5Fu0C1h3glor7juVQnNA5QvFMzS8Y+uILEdJ3VBX7CLFnu9LO5eu+ilM0ILHl27iOppTDICuGqZ9QlepoPJP/Wpd/yQw2Uuu5ghEcKrMoe0C0AjsrFbyqhEW3MWD5ffPv6U1MDxKUOQBE4JZ5+tyS6JM4AEjZrqSQaXqthyjLylYn72ibnnTeGUXcElP/oxpYJJwX2W9OHpKsoEBwtddM2efGoegquT3MMlWU43EnE1UoohUyWYMy4b+gXk5WL6o2tSKscXhlgV/CgeFuEKEDDcZcXumQgHRpXmKqPxaPyOsXLPsDSdXU7rXs5qGKw+gYoG4C5lvyT42chWu61QBOnexeerIJM4lli5bvOf2kxfRwSJu7zHF6/Vqxi+pqbLVgAyA0EDIKDBbeDQ1F4mXpCLWkiLVPOfLfiCnbyoq4i8rpdlXHSZ527NnJPVRF/QzXYbMcZ74KRrusf/4jj3T6Aztj3gLCYkGQyMroy7Qmeozoa9BAOA5vSzQ9XOvXBFrGnt6h1mNY9tCrt4kFeO4eKTultq3po4AwBLObzBdJGJzXMPFHa8Zj5e99BPqrCQUovthLsBDuHGsq4hpcR0kRyHuVzV/ozQTAnkuTErsOvsyzvTk0yQWDNZX2yttXzej8WIE9M7BstpCXqiSZ6sp7FDd7JrCJBkz//zRMPBmJwlPujDQbgb/jRFHQqZn7ltOTm3wmFSgCMOC9rNxF7dAd4juWjNYEa+cRcBz4UlRtbuaKLWy81qebB7TeZgB55MDLXPplZSnpDtOyuOUPASwsjRTZEdJyLvokYeGQoQT58xQWWKoewQNpKdYhB8wunuXWsuFbZbBsuch6yAFWTwvbaVfzEgB/Fy1RXASsMcbykFqEkhuoMxoFH/XulD9troPuDaUqMyPEGFzx4jcXNUt79bJSa6ffB9vWtb3rJOX9HGcO3XhX/ZdXcvnanQTUJmym0qRbCtFh4y5TtacN0dE331OtpJTZ+LY0JX5UEPyvcR/9odmx3BOkSIYI+rLSarGgOf+3EuARI1qyH1aUtofPgZKDsndSBxQaOFq56BhO5sEUJ0K/7v8KjupRRTcZlyZsqmqBFdjTMAW4Qa2WFg2g53JHwM5jhCWNqGOy/EA1xv1p4eTImwUV2tDwtUDc5ZX+vRsX+1x2qV6Xq3AXTh/Q3wGxyVyeAVgZYTuKpLI8PWGaOqOgq1Je1iTtEkww58qXeS8hH3fZN0D3cri1rI07QSIr4DLG7btPiHVrbA6yQeyNpzwPUDwWYR+fYWHSSgE9g/zXqAoWbWAb9qpp8FT+TF8bGj95TY6ShVJxzc4v85003PcD+6ns/9V6aKEjDs55MHl9vNYPaQWn8MiXUrMVkdIWWwaziawew8YNFUqQ26TEsYXqM6EFO7cGAwhSoDEUOFuoF/FTRVCsAccOD5w4dAf/RcUWBzupd0fgHHxCoPrvjfT5/zravRdL9xI1V+eX0GtzssEFf/4OF94nOpdOYE9C5KiNk46iHCHbRIsZ/Cb3dq0Ub2OvvnBU1GEUsQugLp5FD0cRtvH0LvDYVaOmNDJ5bdCbLTTNPf9o+a+79lAdKI2/vIMMPDXr2EOSIJkmtUXxFJUVwTCS8MZz5NUkzA27BKM1vQvtHlo22COJl7/VKo+trB0MFRGvNj2bz3apmRxUu9NIKtXj/MbuglYQf7qY9jZc50BECVYngCWARrbZWI1sOneHaEzE5FewJ9b3GuWf3nFskgEyterzuCp0KqrlD+ViOIbD2DRtnh3Jo5ypfEw3b3ou/LL/D5NgN0bb1weJtlbotnDccWlTmBjkP1gCL9ouWC2WIyy2JlwAwqfOiLbdOSjaQTh9t8h+JFo/RXjAE8ofgxwNzrhdIk1kirmfYL3aMZOY69hYOy9tjYxy18f5iZUecuGlZhvuPAjq/SjohA24HAPDk5ksmDSyhrKxCp0OFw0m6zztAiAVpyoc/znnCnsaefB/5ygXCk+Ilj+44uwj1q01R3o6Jc2Q1ns5JDGJiKpgDAhWJDRpP0fdNCuWLhb6XAXux864BbESc8XR5ysxy24BtKjZlNwLqPpjbLtCBo3kNWdyAZ1dy/c6Epjg64mwgmy8RGx9zzHb+GeumofEBQpAJ2C7nI64ZwtCbwPwxbYVYq73L+BG8aOvRGZnURZX75nNN++aaLQBCiy02YnS/R/WQm3n6GPZbLjr7paFkMoMrrrZSjxprHS6hYcfBYSXpBTxM2/5Ao15qskeubNubLaE0ODZIuXTxk70ESrU/hCHPLCWKB4KM/54BrooxF5ICZ9Wol/v4DHHJHN488ka1Pyhfdli74+GUCreMzYneoycMKzrZq9LcUxsKRv5hjD9t0D9EdL9bix3MrEWH+N/iRe503ilwiq18tglhBSjwtg0PCCtFKMfG8eBK0JCEAeistawXw7E0Ybjr7xbWPeE/CwpS/PCgZZ6Oos2YCQW1JWHFlQjNv4gSN8eF6xErkPiRzHTtpMC7d2KcRG3sBoVci/Fq81FaWdDyrk25ZlW2o9pywPJDpAduNOAO7smjWqxeLR2cszugmBNJILIgeMCBJOHmtlp3pOCOmDHmdeb0JYkDBh8rlG+anFJYpPYrEsH1IQKbJKzNO0k6OL04ffDWf7qCvADeNKQjvC4RZxs8Q1ZaelUvLUAoya0Z3WBXUJIrisqRE3FUTHgfCi5gMjFLeAM8RCrMv6psGVAhHwioZUEEG4cg9MUVOcVoTwGbxTSsIX1aazvLGAOd2uiH4pb2Uq3MT2BBWAItrlVWPDHeZZo6UmSgMNWvW1Piuj0H5PilE8adZB9OTkDW0GiYX2BOz3KKbAXJ90ElT8M9SwMg9L2c7jlXKDY17kcM7OBWiDlZRz2clhgm7lR9aIVzrT1U2O+TzzgISuu6f4AY2fjZMhdii1JlILGDPELVqkYeZIbyzXxQU2mNbgZhj649wmDgmbfUp/eN2hylzzLpO1upt0lVlWw0UC6Np0uUY5ZBM28NCA4Pb4ZIuXqHXZGVsJeHgdPRBHyypqIgzWBT6ddgXS2X/EZxDRBGsvddFvsU506I/Yff8xiu7z2e+joudVrFwhzXNt7yZ5Ky+uyTlyG5gEgZ9LfmKWKvumivdOJiQxETX6sqZmQ08RVNL09m1kB26saleGWv5W6Vwtz9ZHK061g==";
+
+        let payloadDechiffre = null;
+        let isDossierValide = false;
+
+        // Variables de suivi des indices (Option 1 : 1 gratuit, puis -0.25 pt par indice supplémentaire, max -3 pts)
+        let usedHintsCount = 0;
+        const FREE_HINTS = 1;
+        const PENALTY_PER_HINT = 0.25;
+        const MAX_HINT_PENALTY = 3.0;
+
+        let isDuoMode = false;
+
+        // Déchiffrement RC4 Drop 512
+        function rc4Drop512Decrypt(base64Cipher, key) {
+            try {
+                let s = new Array(256);
+                for (let i = 0; i < 256; i++) s[i] = i;
+                let j = 0;
+                for (let i = 0; i < 256; i++) {
+                    j = (j + s[i] + key.charCodeAt(i % key.length)) % 256;
+                    let temp = s[i]; s[i] = s[j]; s[j] = temp;
+                }
+                let i = 0; j = 0;
+                for (let k = 0; k < 512; k++) {
+                    i = (i + 1) % 256;
+                    j = (j + s[i]) % 256;
+                    let temp = s[i]; s[i] = s[j]; s[j] = temp;
+                }
+                let binaryStr = atob(base64Cipher);
+                let plain = [];
+                for (let k = 0; k < binaryStr.length; k++) {
+                    i = (i + 1) % 256;
+                    j = (j + s[i]) % 256;
+                    let temp = s[i]; s[i] = s[j]; s[j] = temp;
+                    let K = s[(s[i] + s[j]) % 256];
+                    plain.push(binaryStr.charCodeAt(k) ^ K);
+                }
+                return decodeURIComponent(escape(String.fromCharCode.apply(null, plain)));
+            } catch (err) {
+                return null;
+            }
+        }
+
+        // -------------------------------------------------------------------------
+        // GESTION DE LA FICHE CONTRAT & IDENTITÉ ÉLÈVE
+        // -------------------------------------------------------------------------
+        function toggleBinomeMode(checked) {
+            isDuoMode = checked;
+            document.getElementById('box-eleve-2').style.display = checked ? 'grid' : 'none';
+            document.getElementById('mode-badge').innerText = checked ? 'Mode binôme (2 élèves)' : 'Mode individuel';
+            if (!checked) {
+                const n2 = document.getElementById('student-nom2');
+                const p2 = document.getElementById('student-prenom2');
+                if (n2) n2.classList.remove('input-required-error');
+                if (p2) p2.classList.remove('input-required-error');
+            }
+            mettreAJourIdentite();
+        }
+
+        function changerClasse(classe) {
+            const boxGroupe = document.getElementById('box-groupe');
+            const grp = document.getElementById('student-groupe');
+            const sansGroupe = (classe === '1MELFER MELEC' || classe === '1MELFER MFER');
+            const isMFER = (classe === '1MFER' || classe === '1MELFER MFER' || classe === 'TMFER');
+
+            // 1. Visibilité du groupe (masqué pour 1MELFER MELEC et 1MELFER MFER)
+            if (sansGroupe) {
+                boxGroupe.style.visibility = 'hidden';
+                if (grp) {
+                    grp.value = '';
+                    grp.classList.remove('input-required-error');
+                }
+            } else {
+                boxGroupe.style.visibility = 'visible';
+            }
+
+            // 2. Bascule dynamique du contenu de la Page 2 (MELEC vs MFER)
+            const melecBox = document.getElementById('contexte-melec');
+            const mferBox = document.getElementById('contexte-mfer');
+            if (melecBox && mferBox) {
+                if (isMFER) {
+                    melecBox.style.display = 'none';
+                    mferBox.style.display = 'block';
+                } else {
+                    melecBox.style.display = 'block';
+                    mferBox.style.display = 'none';
+                }
+            }
+
+            // 3. Mise à jour des badges et en-têtes de filière (MELEC / MFER)
+            const filiereTexte = isMFER ? "Bac Pro MFER" : "Bac Pro MELEC";
+            const filiereCode = isMFER ? "MFER" : "MELEC";
+
+            document.querySelectorAll('.header-filiere-tag').forEach(el => {
+                el.innerText = filiereTexte;
+            });
+            document.querySelectorAll('.footer-filiere-tag').forEach(el => {
+                el.innerText = filiereTexte;
+            });
+
+            const dockFiliere = document.getElementById('dock-filiere-badge');
+            if (dockFiliere) dockFiliere.innerText = filiereCode + ' | Séquence 1';
+
+            const p1Badge = document.getElementById('p1-filiere-badge');
+            if (p1Badge) p1Badge.innerText = 'Section ' + filiereTexte;
+
+            const p1Sub = document.getElementById('p1-filiere-subtitle');
+            if (p1Sub) p1Sub.innerText = 'Étude de dossier technique et exploitation des plans de bâtiment en ' + filiereTexte;
+
+            // 4. Adaptation Page 3 (Bilan des compétences)
+            const compC1Label = document.getElementById('label-comp-c1');
+            const compC2Label = document.getElementById('label-comp-c2');
+            const profC2Label = document.getElementById('label-prof-eval-c2');
+
+            if (isMFER) {
+                if (compC1Label) compC1Label.innerHTML = '<strong style="color: #1e3a8a; font-size: 13px;">C1 / C2</strong> – Analyser les conditions de l\'opération et exploiter les données techniques';
+                if (compC2Label) compC2Label.innerHTML = '<strong style="color: #b45309; font-size: 13px;">C4</strong> – Organiser son intervention / poste de travail';
+                if (profC2Label) profC2Label.innerText = "Évaluation de la compétence C4 (Organisation de son intervention / poste de travail) :";
+            } else {
+                if (compC1Label) compC1Label.innerHTML = '<strong style="color: #1e3a8a; font-size: 13px;">C1</strong> – Analyser les conditions de l\'opération et son contexte';
+                if (compC2Label) compC2Label.innerHTML = '<strong style="color: #15803d; font-size: 13px;">C2</strong> – Organiser son poste de travail';
+                if (profC2Label) profC2Label.innerText = "Évaluation de la compétence C2 (Organisation du poste de travail) :";
+            }
+
+            mettreAJourIdentite();
+        }
+
+        function mettreAJourIdentite() {
+            const nom1Input = document.getElementById('student-nom');
+            const prenom1Input = document.getElementById('student-prenom');
+            const classeInput = document.getElementById('student-classe');
+            const groupeInput = document.getElementById('student-groupe');
+
+            const nom1 = nom1Input ? nom1Input.value.trim() : '';
+            const prenom1 = prenom1Input ? prenom1Input.value.trim() : '';
+            const classe = classeInput ? classeInput.value : '';
+            const sansGroupe = (classe === '1MELFER MELEC' || classe === '1MELFER MFER');
+            const groupe = sansGroupe ? '' : (groupeInput ? groupeInput.value : '');
+
+            // Nettoyer dynamiquement les bordures d'erreur dès la saisie
+            if (nom1 && nom1Input) nom1Input.classList.remove('input-required-error');
+            if (prenom1 && prenom1Input) prenom1Input.classList.remove('input-required-error');
+            if (classe && classeInput) classeInput.classList.remove('input-required-error');
+            if ((groupe || sansGroupe) && groupeInput) groupeInput.classList.remove('input-required-error');
+
+            let nomComplet = (nom1 || prenom1) ? (nom1.toUpperCase() + ' ' + prenom1) : 'En attente de saisie...';
+            if (isDuoMode) {
+                const nom2Input = document.getElementById('student-nom2');
+                const prenom2Input = document.getElementById('student-prenom2');
+                const nom2 = nom2Input ? nom2Input.value.trim() : '';
+                const prenom2 = prenom2Input ? prenom2Input.value.trim() : '';
+                if (nom2 && nom2Input) nom2Input.classList.remove('input-required-error');
+                if (prenom2 && prenom2Input) prenom2Input.classList.remove('input-required-error');
+
+                if (nom2 || prenom2) {
+                    nomComplet += ' & ' + nom2.toUpperCase() + ' ' + prenom2;
+                }
+            }
+
+            const infoStr = nomComplet + (classe ? ' (' + classe + (groupe ? ' - ' + groupe : '') + ')' : '');
+            document.getElementById('dock-student-name').innerText = infoStr;
+            document.getElementById('bilan-eleve-display').innerText = 'Élève(s) : ' + nomComplet;
+            document.getElementById('bilan-classe-display').innerText = 'Classe : ' + (classe ? (classe + (groupe ? ' | ' + groupe : '')) : 'À renseigner sur la page 1');
+            calculerProgression();
+        }
+
+        // Vérification obligatoire de l'identité de l'élève (et de son binôme si coché)
+        function verifierChampsIdentite() {
+            const nom1Input = document.getElementById('student-nom');
+            const prenom1Input = document.getElementById('student-prenom');
+            const classeInput = document.getElementById('student-classe');
+            const groupeInput = document.getElementById('student-groupe');
+            const nom2Input = document.getElementById('student-nom2');
+            const prenom2Input = document.getElementById('student-prenom2');
+
+            const manquants = [];
+            let premierElementManquant = null;
+
+            if (!nom1Input || !nom1Input.value.trim()) {
+                manquants.push("Nom (Élève 1)");
+                if (nom1Input) {
+                    nom1Input.classList.add('input-required-error');
+                    if (!premierElementManquant) premierElementManquant = nom1Input;
+                }
+            }
+            if (!prenom1Input || !prenom1Input.value.trim()) {
+                manquants.push("Prénom (Élève 1)");
+                if (prenom1Input) {
+                    prenom1Input.classList.add('input-required-error');
+                    if (!premierElementManquant) premierElementManquant = prenom1Input;
+                }
+            }
+            if (!classeInput || !classeInput.value.trim()) {
+                manquants.push("Classe");
+                if (classeInput) {
+                    classeInput.classList.add('input-required-error');
+                    if (!premierElementManquant) premierElementManquant = classeInput;
+                }
+            }
+            const isSansGroupe = (classeInput && (classeInput.value === '1MELFER MELEC' || classeInput.value === '1MELFER MFER'));
+            if (classeInput && !isSansGroupe && (!groupeInput || !groupeInput.value.trim())) {
+                manquants.push("Groupe");
+                if (groupeInput) {
+                    groupeInput.classList.add('input-required-error');
+                    if (!premierElementManquant) premierElementManquant = groupeInput;
+                }
+            }
+
+            if (isDuoMode) {
+                if (!nom2Input || !nom2Input.value.trim()) {
+                    manquants.push("Nom (Élève 2)");
+                    if (nom2Input) {
+                        nom2Input.classList.add('input-required-error');
+                        if (!premierElementManquant) premierElementManquant = nom2Input;
+                    }
+                }
+                if (!prenom2Input || !prenom2Input.value.trim()) {
+                    manquants.push("Prénom (Élève 2)");
+                    if (prenom2Input) {
+                        prenom2Input.classList.add('input-required-error');
+                        if (!premierElementManquant) premierElementManquant = prenom2Input;
+                    }
+                }
+            }
+
+            return {
+                valide: manquants.length === 0,
+                manquants: manquants,
+                premierElement: premierElementManquant
+            };
+        }
+
+        // -------------------------------------------------------------------------
+        // NAVIGATION & MODES D'AFFICHAGE
+        // -------------------------------------------------------------------------
+        function naviguerVersPage(pageId) {
+            const target = document.getElementById(pageId);
+            if (!target) return;
+
+            if (document.body.classList.contains('mode-single')) {
+                document.querySelectorAll('.a4-page').forEach(p => p.classList.remove('single-active'));
+                target.classList.add('single-active');
+            }
+
+            target.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'center' });
+
+            // Mise à jour onglet actif
+            document.querySelectorAll('.dock-tab').forEach(t => t.classList.remove('active'));
+            const tabs = {
+                'page-1-garde': 0, 'page-2-contexte': 1, 'page-3-bilan': 2,
+                'page-4-cas1': 3, 'page-5-cas2': 4, 'page-6-cas3': 5
+            };
+            const tabIdx = tabs[pageId];
+            if (tabIdx !== undefined) {
+                document.querySelectorAll('.dock-tab')[tabIdx].classList.add('active');
+            }
+        }
+
+        function basculerModeAffichage(mode) {
+            document.body.classList.remove('mode-livret', 'mode-single', 'mode-vertical');
+            document.querySelectorAll('.dock-btn').forEach(b => {
+                if (b.id && b.id.startsWith('btn-mode-')) b.classList.remove('active-mode');
+            });
+
+            if (mode === 'livret') {
+                document.body.classList.add('mode-livret');
+                const b = document.getElementById('btn-mode-livret');
+                if (b) b.classList.add('active-mode');
+            } else if (mode === 'single') {
+                document.body.classList.add('mode-single');
+                const b = document.getElementById('btn-mode-single');
+                if (b) b.classList.add('active-mode');
+                // Activer la première page par défaut
+                const active = document.querySelector('.a4-page.single-active') || document.getElementById('page-1-garde');
+                document.querySelectorAll('.a4-page').forEach(p => p.classList.remove('single-active'));
+                active.classList.add('single-active');
+            } else if (mode === 'vertical') {
+                document.body.classList.add('mode-vertical');
+                const b = document.getElementById('btn-mode-vertical');
+                if (b) b.classList.add('active-mode');
+            } else {
+                // Mode 2 lignes (défaut : 3 pages ligne 1, 3 pages ligne 2)
+                const b = document.getElementById('btn-mode-lignes');
+                if (b) b.classList.add('active-mode');
+            }
+        }
+
+        function ouvrirFicheSynthese() {
+            if (!isDossierValide) {
+                alert("⚠️ Accès verrouillé !\n\nLa fiche synthèse est accessible uniquement après validation de votre travail par votre professeur.");
+                return;
+            }
+            sessionStorage.setItem('synthese_unlocked', 'true');
+            window.open('Fiche_Synthese_Echelle_Document.html', '_blank');
+        }
+
+        function ajusterEcran() {
+            if (document.body.style.zoom && document.body.style.zoom !== '1') {
+                document.body.style.zoom = '1';
+                return;
+            }
+            const page = document.querySelector('.a4-page');
+            if (!page) return;
+
+            let targetWidth;
+            if (document.body.classList.contains('mode-single') || document.body.classList.contains('mode-vertical')) {
+                targetWidth = page.offsetWidth + 40;
+            } else {
+                const row1 = document.getElementById('pages-row-1');
+                targetWidth = row1 ? (row1.scrollWidth || row1.offsetWidth) + 40 : (page.offsetWidth * 3 + 80);
+            }
+
+            const windowWidth = window.innerWidth;
+            const ratio = windowWidth / targetWidth;
+            if (ratio < 1) {
+                document.body.style.zoom = ratio.toFixed(3);
+            } else {
+                document.body.style.zoom = '1';
+            }
+        }
+
+        // -------------------------------------------------------------------------
+        // GESTION DES INDICES (OPTION 1 : 1 GRATUIT, PUIS -0.25 PT/INDICE, MAX -3 PTS)
+        // -------------------------------------------------------------------------
+        function activerIndice(hintKey) {
+            const hintElem = document.getElementById(hintKey);
+            if (!hintElem) return;
+
+            if (hintElem.style.display === 'block') {
+                // Déjà affiché
+                return;
+            }
+
+            // Déchiffrement à la volée du texte de l'indice si corrigé chargé
+            if (payloadDechiffre && payloadDechiffre.hints && payloadDechiffre.hints[hintKey]) {
+                hintElem.innerHTML = '<strong>💡 Indice :</strong> ' + payloadDechiffre.hints[hintKey];
+            } else {
+                // Indice pédagogique direct
+                const fallbackHints = {
+                    'h_q5': "Formule : Surface = Longueur × Largeur",
+                    'h_q6': "Formule : Surface = Longueur × Largeur",
+                    'h_q8': "Formule : Dimension réelle = Mesure sur le plan × Dénominateur de l'échelle",
+                    'h_q9': "Formule : Dimension réelle = Mesure sur le plan × Dénominateur de l'échelle"
+                };
+                hintElem.innerHTML = '<strong>💡 Indice :</strong> ' + (fallbackHints[hintKey] || 'Consultez votre fiche synthèse de cours.');
+            }
+
+            hintElem.style.display = 'block';
+            usedHintsCount++;
+            mettreAJourBadgesIndices();
+
+            if (isDossierValide) {
+                calculerNotesEtCompetences();
+            }
+        }
+
+        function mettreAJourBadgesIndices() {
+            let penalite = 0;
+            if (usedHintsCount > FREE_HINTS) {
+                penalite = Math.min(MAX_HINT_PENALTY, (usedHintsCount - FREE_HINTS) * PENALTY_PER_HINT);
+            }
+
+            const badge = document.getElementById('dock-hints-badge');
+            if (penalite > 0) {
+                badge.innerText = '💡 Utilisés : ' + usedHintsCount + ' (Pénalité : -' + penalite.toFixed(2) + ' pt)';
+                badge.style.color = '#fca5a5';
+            } else {
+                const restants = Math.max(0, FREE_HINTS - usedHintsCount);
+                badge.innerText = '💡 ' + restants + (restants <= 1 ? ' gratuit restant' : ' gratuits restants') + ' | Utilisés : ' + usedHintsCount;
+                badge.style.color = '#fef08a';
+            }
+        }
+
+        // -------------------------------------------------------------------------
+        // PROGRESSION EN DIRECT
+        // -------------------------------------------------------------------------
+        function calculerProgression() {
+            const inputs = document.querySelectorAll('[data-qid]');
+            let remplis = 0;
+            inputs.forEach(inp => {
+                if (inp.value.trim() !== '') remplis++;
+            });
+            const total = inputs.length;
+            const pct = Math.round((remplis / total) * 100);
+
+            document.getElementById('dock-progress-bar').style.width = pct + '%';
+            document.getElementById('dock-progress-text').innerText = remplis + '/' + total + ' réponses (' + pct + '%)';
+        }
+
+        // -------------------------------------------------------------------------
+        // VALIDATION ENSEIGNANT & DÉCHIFFREMENT RC4
+        // -------------------------------------------------------------------------
+        function validerTD() {
+            const errorElem = document.getElementById('prof-error-msg');
+            errorElem.style.display = 'none';
+
+            // 1. VÉRIFICATION STRICTE DE L'IDENTITÉ ÉLÈVE & CLASSE (OBLIGATOIRE POUR OBTENIR LA NOTE)
+            const checkIdentite = verifierChampsIdentite();
+            if (!checkIdentite.valide) {
+                errorElem.innerHTML = "⚠️ <strong>Identification obligatoire !</strong> Veuillez obligatoirement renseigner sur la page 1 : <u>" + 
+                    checkIdentite.manquants.join(", ") + 
+                    "</u> pour pouvoir déverrouiller et attribuer la note.";
+                errorElem.style.display = 'block';
+
+                // Rediriger vers la page 1 pour inviter l'élève ou le professeur à compléter
+                naviguerVersPage('page-1-garde');
+                if (checkIdentite.premierElement) {
+                    checkIdentite.premierElement.focus();
+                }
+                return;
+            }
+
+            // 2. VÉRIFICATION DU CODE ENSEIGNANT SECRET
+            const code = document.getElementById('prof-code').value.trim();
+            if (!code) {
+                errorElem.innerText = "Veuillez appeler votre professeur pour valider votre travail.";
+                errorElem.style.display = 'block';
+                return;
+            }
+
+            let codeValide = false;
+            let showCorrection = true;
+            let decrypted = rc4Drop512Decrypt(CORRIGE_ENCRYPTE, code);
+            
+            if (decrypted && decrypted.includes('MELEC_S1_SECRET_KEY_OK')) {
+                codeValide = true;
+            } else if (code === '0001') {
+                decrypted = rc4Drop512Decrypt(CORRIGE_ENCRYPTE, '7049');
+                if (decrypted && decrypted.includes('MELEC_S1_SECRET_KEY_OK')) {
+                    codeValide = true;
+                    showCorrection = false;
+                }
+            }
+
+            if (!codeValide) {
+                errorElem.innerText = "Code enseignant incorrect !";
+                errorElem.style.display = 'block';
+                return;
+            }
+
+            errorElem.style.display = 'none';
+            try {
+                payloadDechiffre = JSON.parse(decrypted);
+            } catch (e) {
+                errorElem.innerText = "Erreur de format du corrigé crypté.";
+                errorElem.style.display = 'block';
+                return;
+            }
+
+            isDossierValide = true;
+
+            // Affichage de la boîte validée
+            document.getElementById('prof-auth-box').style.display = 'none';
+            document.getElementById('prof-validated-box').style.display = 'block';
+
+            // Statut du dock
+            const dockBadge = document.getElementById('dock-status-badge');
+            dockBadge.className = 'dock-status-badge status-validated';
+            dockBadge.innerText = 'Validé';
+
+            // Activer l'export PDF
+            const btnPdf = document.getElementById('btn-dock-pdf');
+            btnPdf.disabled = false;
+            btnPdf.style.opacity = '1';
+            btnPdf.style.cursor = 'pointer';
+
+            // Déverrouiller l'accès à la fiche synthèse
+            sessionStorage.setItem('synthese_unlocked', 'true');
+            const btnSynthese = document.getElementById('btn-dock-synthese');
+            if (btnSynthese) {
+                btnSynthese.style.opacity = '1';
+                btnSynthese.style.cursor = 'pointer';
+                btnSynthese.innerHTML = '📄 Fiche Synthèse';
+                btnSynthese.title = "Consulter la fiche synthèse";
+            }
+
+            const btnPrint = document.getElementById('btn-print-dossier');
+            if (btnPrint) {
+                btnPrint.disabled = false;
+                btnPrint.style.background = '#2563eb';
+                btnPrint.style.opacity = '1';
+                btnPrint.style.cursor = 'pointer';
+            }
+            document.getElementById('print-locked-hint').style.display = 'none';
+
+            // Générer nom suggéré
+            const nomFichier = genererNomFichierBase();
+            document.getElementById('saved-filename-display').innerText = 'Fichier PDF officiel : ' + nomFichier + '.pdf';
+            document.title = nomFichier;
+
+            // Basculer les images vers la version corrigée annotée pour le contrôle prof si présentes
+            if (showCorrection) {
+                if (document.getElementById('img-plan-rdc')) document.getElementById('img-plan-rdc').src = 'img/plan_rdc_corrige.png';
+                if (document.getElementById('img-plan-graduee')) document.getElementById('img-plan-graduee').src = 'img/plan_echelle_graduee_corrige.png';
+                if (document.getElementById('img-facade-principale')) document.getElementById('img-facade-principale').src = 'img/facade_principale_corrige.png';
+                if (document.getElementById('img-facade-arriere')) document.getElementById('img-facade-arriere').src = 'img/facade_arriere_corrige.png';
+                if (document.getElementById('img-facade-gauche')) document.getElementById('img-facade-gauche').src = 'img/facade_gauche_corrige.png';
+            }
+
+            // Calculer notes et appliquer les pastilles de correction
+            calculerNotesEtCompetences(showCorrection);
+
+            // Lancer la synchronisation Webhook Google Sheets & Drive (génération automatique du PDF 6 pages et archivage Drive)
+            envoyerSynchronisationGoogleSheets();
+        }
+
+        // -------------------------------------------------------------------------
+        // CALCUL DES NOTES & ATTRIBUTION DES PALIERS ÉDUSCOL (C1 & C2)
+        // -------------------------------------------------------------------------
+        function mettreAJourC2() {
+            const hasClasseur = document.getElementById('check-classeur').checked;
+            const hasStylo = document.getElementById('check-stylo').checked;
+            const badgeC2 = document.getElementById('badge-c2');
+            const detailC2 = document.getElementById('detail-c2');
+
+            if (hasClasseur && hasStylo) {
+                badgeC2.className = 'badge badge-vert-fonce';
+                badgeC2.innerText = 'Très bonne maîtrise';
+                detailC2.innerText = 'Poste de travail complet (Classeur + Stylo)';
+            } else if (hasClasseur || hasStylo) {
+                badgeC2.className = 'badge badge-jaune';
+                badgeC2.innerText = 'Maîtrise fragile';
+                detailC2.innerText = hasClasseur ? 'Stylo ou règle manquant' : 'Classeur de cours manquant';
+            } else {
+                badgeC2.className = 'badge badge-rouge';
+                badgeC2.innerText = 'Maîtrise insuffisante';
+                detailC2.innerText = 'Aucun matériel de travail présent';
+            }
+        }
+
+        function normaliserTexte(txt) {
+            return String(txt || '')
+                .trim()
+                .toLowerCase()
+                .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                .replace(/,/g, '.')
+                .replace(/×/g, 'x')
+                .replace(/\*/g, 'x')
+                .replace(/\//g, ':')
+                .replace(/\s+/g, '')
+                .replace(/m²$/, '')
+                .replace(/m2$/, '')
+                .replace(/m$/, '')
+                .replace(/cm$/, '');
+        }
+
+        function calculerNotesEtCompetences(showCorrection = true) {
+            if (!payloadDechiffre || !payloadDechiffre.answers) return;
+
+            const answers = payloadDechiffre.answers;
+            let earnedPoints = 0;
+            let totalPossible = 0;
+
+            for (const [qid, data] of Object.entries(answers)) {
+                totalPossible += (data.pts || 0);
+                const inputElem = document.querySelector(`[data-qid="${qid}"]`);
+                const fbElem = document.getElementById(`fb-${qid}`);
+                if (!inputElem) continue;
+
+                const userValRaw = inputElem.value.trim();
+                const userVal = normaliserTexte(userValRaw);
+                const attenduVal = normaliserTexte(data.val);
+
+                let isCorrect = (userVal === attenduVal);
+
+                // Vérifier les alternatives valides
+                if (!isCorrect && data.alts && Array.isArray(data.alts)) {
+                    for (const alt of data.alts) {
+                        if (userVal === normaliserTexte(alt)) {
+                            isCorrect = true;
+                            break;
+                        }
+                    }
+                }
+
+                // Tolérance numérique relative sur les calculs (ex : 15.9 vs 15.90)
+                if (!isCorrect && !isNaN(parseFloat(userVal)) && !isNaN(parseFloat(attenduVal))) {
+                    const diff = Math.abs(parseFloat(userVal) - parseFloat(attenduVal));
+                    if (diff <= 0.05) {
+                        isCorrect = true;
+                    }
+                }
+
+                if (isCorrect) {
+                    earnedPoints += data.pts;
+                    inputElem.style.borderColor = '#16a34a';
+                    inputElem.style.backgroundColor = '#f0fdf4';
+                    if (fbElem) {
+                        fbElem.className = 'feedback-box feedback-correct';
+                        if (showCorrection) {
+                            fbElem.innerText = '+' + data.pts + (data.pts <= 1 ? ' pt' : ' pts');
+                        } else {
+                            fbElem.innerText = 'Correct';
+                        }
+                    }
+                } else {
+                    inputElem.style.borderColor = '#dc2626';
+                    inputElem.style.backgroundColor = '#fef2f2';
+                    if (fbElem) {
+                        fbElem.className = 'feedback-box feedback-wrong';
+                        if (showCorrection) {
+                            fbElem.innerText = 'Attendu : ' + data.val;
+                        } else {
+                            fbElem.innerText = 'Faux (0 pt)';
+                        }
+                    }
+                }
+            }
+
+            // Calcul de la pénalité d'indices (Option 1)
+            let penaliteIndices = 0;
+            if (usedHintsCount > FREE_HINTS) {
+                penaliteIndices = Math.min(MAX_HINT_PENALTY, (usedHintsCount - FREE_HINTS) * PENALTY_PER_HINT);
+            }
+
+            const scoreSur20 = totalPossible > 0 ? (earnedPoints / totalPossible) * 20 : 0;
+            const noteFinale = Math.max(0, Math.min(20, Math.round((scoreSur20 - penaliteIndices) * 10) / 10));
+
+            // Affichage du score
+            document.getElementById('global-score-display').innerText = noteFinale.toFixed(1) + ' / 20';
+            document.getElementById('global-score-details').innerText =
+                'Score brut : ' + earnedPoints.toFixed(1) + ' / ' + totalPossible + ' pts (' + scoreSur20.toFixed(1) + ' / 20) | Pénalité indices (' + usedHintsCount + ') : -' + penaliteIndices.toFixed(2) + ' pt';
+
+            // Attribution des 4 paliers officiels Éduscol pour C1
+            const badgeC1 = document.getElementById('badge-c1');
+            const detailC1 = document.getElementById('detail-c1');
+
+            if (noteFinale >= 17) {
+                badgeC1.className = 'badge badge-vert-fonce';
+                badgeC1.innerText = 'Très bonne maîtrise';
+                detailC1.innerText = 'Note ≥ 17/20 (Maîtrise excellente de la lecture de plan)';
+            } else if (noteFinale >= 13) {
+                badgeC1.className = 'badge badge-vert-clair';
+                badgeC1.innerText = 'Maîtrise satisfaisante';
+                detailC1.innerText = '13 ≤ Note < 17 (Compétence validée - Cœur de cible)';
+            } else if (noteFinale >= 8) {
+                badgeC1.className = 'badge badge-jaune';
+                badgeC1.innerText = 'Maîtrise fragile';
+                detailC1.innerText = '8 ≤ Note < 13 (Des erreurs d\'analyse ou de calcul)';
+            } else {
+                badgeC1.className = 'badge badge-rouge';
+                badgeC1.innerText = 'Maîtrise insuffisante';
+                detailC1.innerText = 'Note < 8/20 (Méthode non acquise)';
+            }
+
+            // Mettre à jour C2
+            mettreAJourC2();
+        }
+
+        // -------------------------------------------------------------------------
+        // EXPORT PDF AUTOMATIQUE (BILAN SEUL OU DOSSIER COMPLET)
+        // -------------------------------------------------------------------------
+        function genererNomFichierBase() {
+            const nom = document.getElementById('student-nom').value.trim().toUpperCase() || 'ELEVE';
+            const prenom = document.getElementById('student-prenom').value.trim() || 'Prenom';
+            const classe = document.getElementById('student-classe').value;
+            const sansGroupe = (classe === '1MELFER MELEC' || classe === '1MELFER MFER');
+            const groupe = sansGroupe ? '' : document.getElementById('student-groupe').value.replace(/\s+/g, '');
+            let baseNom = nom + '_' + prenom;
+            if (isDuoMode) {
+                const nom2 = (document.getElementById('student-nom2') ? document.getElementById('student-nom2').value.trim().toUpperCase() : '') || 'BINOME';
+                const prenom2 = (document.getElementById('student-prenom2') ? document.getElementById('student-prenom2').value.trim() : '') || 'Prenom';
+                baseNom += '_et_' + nom2 + '_' + prenom2;
+            }
+            return baseNom + '_' + classe + (groupe && groupe !== 'Classe entière' ? '_' + groupe : '') + '_S1_Echelle';
+        }
+
+        function exporterDossierPDF() {
+            if (!isDossierValide) {
+                alert("Veuillez d'abord faire valider le dossier par votre professeur.");
+                return;
+            }
+            document.title = genererNomFichierBase();
+            window.print();
+        }
+
+        function exporterPDF() {
+            exporterDossierPDF();
+        }
+
+        // -------------------------------------------------------------------------
+        // SYNCHRONISATION GOOGLE SHEETS & DRIVE EN TEMPS RÉEL (WEBHOOK)
+        // -------------------------------------------------------------------------
+        // URL Webhook Google Apps Script officielle déployée par M. DIAKHO
+        const GOOGLE_APPS_SCRIPT_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzEX7l1BYeOLoGc1ULmUh5SlyGkLivc5f_xB6o3G81wco9rE4hpcZmVE2cYHofURNr_6Q/exec";
+
+        // -------------------------------------------------------------------------
+        // CAPTURE DU DOSSIER COMPLET EN PDF MULTI-PAGES HAUTE FIDÉLITÉ (HTML2CANVAS + JSPDF)
+        // -------------------------------------------------------------------------
+        async function genererDossierCompletPDFBase64() {
+            try {
+                const jsPDFClass = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+                if (typeof html2canvas === 'undefined' || !jsPDFClass) {
+                    console.warn("Librairies PDF html2canvas ou jsPDF non chargées.");
+                    return null;
+                }
+
+                // 1. Remplacement de toutes les images locales par leurs Data URIs Base64
+                // Cela élimine définitivement les erreurs de sécurité Chrome "Tainted canvas" en protocole file:///
+                if (window.TD_IMAGES_DATA) {
+                    const allImgs = Array.from(document.querySelectorAll('img'));
+                    for (const img of allImgs) {
+                        const src = img.getAttribute('src');
+                        if (src && !src.startsWith('data:')) {
+                            const fn = src.replace(/^.*[\\\/]/, '');
+                            if (window.TD_IMAGES_DATA[fn]) {
+                                img.src = window.TD_IMAGES_DATA[fn];
+                                if (img.decode) {
+                                    try { await img.decode(); } catch (e) {}
+                                }
+                            }
+                        }
+                    }
+                }
+
+                const pages = document.querySelectorAll('.a4-page');
+                if (!pages || pages.length === 0) return null;
+
+                // S'assurer que toutes les pages sont visibles et mesurables pour la capture
+                const wasSingleMode = document.body.classList.contains('mode-single');
+                if (wasSingleMode) {
+                    document.body.classList.remove('mode-single');
+                }
+
+                const pdf = new jsPDFClass({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4',
+                    compress: true
+                });
+
+                for (let i = 0; i < pages.length; i++) {
+                    const pageEl = pages[i];
+
+                    // Capture haute fidélité de chaque page A4 réelle de l'élève
+                    const canvas = await html2canvas(pageEl, {
+                        scale: 1.5,
+                        useCORS: true,
+                        logging: false,
+                        backgroundColor: '#ffffff',
+                        ignoreElements: (el) => {
+                            // Masquer les boutons et repères d'écran interactifs superflus sur le document officiel
+                            return el.classList && (
+                                el.classList.contains('plan-zoom-cue') ||
+                                el.classList.contains('btn-hint')
+                            );
+                        }
+                    });
+
+                    const imgData = canvas.toDataURL('image/jpeg', 0.85);
+
+                    if (i > 0) {
+                        pdf.addPage('a4', 'portrait');
+                    }
+                    // Format A4 certifié : 210 x 297 mm
+                    pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
+                }
+
+                if (wasSingleMode) {
+                    document.body.classList.add('mode-single');
+                }
+
+                const dataUri = pdf.output('datauristring');
+                const base64Index = dataUri.indexOf('base64,');
+                return base64Index !== -1 ? dataUri.substring(base64Index + 7) : null;
+            } catch (err) {
+                console.error("Erreur lors de la capture PDF haute fidélité :", err);
+                return null;
+            }
+        }
+
+        async function envoyerSynchronisationGoogleSheets() {
+            const syncMsg = document.getElementById('sync-status-msg');
+            syncMsg.innerText = "Génération du dossier complet PDF (6 pages) et archivage Drive...";
+            syncMsg.style.color = "#1e3a8a";
+
+            const nom1 = document.getElementById('student-nom').value.trim();
+            const prenom1 = document.getElementById('student-prenom').value.trim();
+            const nom2 = document.getElementById('student-nom2') ? document.getElementById('student-nom2').value.trim() : '';
+            const prenom2 = document.getElementById('student-prenom2') ? document.getElementById('student-prenom2').value.trim() : '';
+            const classe = document.getElementById('student-classe').value;
+            const sansGroupe = (classe === '1MELFER MELEC' || classe === '1MELFER MFER');
+            const isMFER = (classe === '1MFER' || classe === '1MELFER MFER');
+            const groupe = sansGroupe ? 'Classe entière' : document.getElementById('student-groupe').value;
+
+            const noteTexte = document.getElementById('global-score-display').innerText.replace(' / 20', '');
+            const badgeC1 = document.getElementById('badge-c1').innerText;
+            const badgeC2 = document.getElementById('badge-c2').innerText;
+
+            let penaliteIndices = 0;
+            if (usedHintsCount > FREE_HINTS) {
+                penaliteIndices = Math.min(MAX_HINT_PENALTY, (usedHintsCount - FREE_HINTS) * PENALTY_PER_HINT);
+            }
+
+            const baseNomFichier = genererNomFichierBase();
+            const nomFichierPDF = baseNomFichier + '.pdf';
+
+            // 1. Génération en tâche de fond du dossier complet en PDF 6 pages
+            let pdfBase64 = null;
+            try {
+                pdfBase64 = await genererDossierCompletPDFBase64();
+            } catch (e) {
+                console.warn("Capture PDF impossible :", e);
+            }
+
+            // 2. Préparation du payload compatible avec le script Google Apps Script officiel déployé par M. DIAKHO
+            const payload = {
+                // Clés principales utilisées par le script Google Apps Script déployé de M. DIAKHO
+                horodatage: new Date().toLocaleString('fr-FR'),
+                titreTD: "Séquence 1 : Séance Échelle d'un document",
+                classe: classe,
+                groupe: groupe,
+                isBinome: isDuoMode ? "Oui" : "Non",
+                eleve1: `${nom1.toUpperCase()} ${prenom1}`,
+                eleve2: isDuoMode && nom2 ? `${nom2.toUpperCase()} ${prenom2}` : "-",
+                scoreBrut: document.getElementById('global-score-details').innerText,
+                indicesUtilises: usedHintsCount,
+                penaliteNoteSur20: penaliteIndices > 0 ? `-${penaliteIndices.toFixed(2)} pt` : "0.00 pt",
+                noteSur20: parseFloat(noteTexte) || 0,
+                competenceC1: badgeC1,
+                competenceC2: badgeC2,
+                nomFichier: baseNomFichier,
+                nomFichierPDF: nomFichierPDF,
+                pdfBase64: pdfBase64,
+
+                // Clés additionnelles pour compatibilité totale avec tout autre script Google Apps Script
+                filiere: isMFER ? "MFER" : "MELEC",
+                eleve1_nom: nom1.toUpperCase(),
+                eleve1_prenom: prenom1,
+                eleve2_nom: nom2 ? nom2.toUpperCase() : "",
+                eleve2_prenom: prenom2 || "",
+                nom: nom1.toUpperCase(),
+                prenom: prenom1,
+                nom2: nom2 ? nom2.toUpperCase() : "",
+                prenom2: prenom2 || "",
+                penaliteIndicesValeur: penaliteIndices,
+                noteFinale: parseFloat(noteTexte) || 0
+            };
+
+            // 3. Envoi en POST text/plain pour éviter tout blocage CORS / Firewall académique
+            fetch(GOOGLE_APPS_SCRIPT_WEBHOOK_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            }).then(() => {
+                syncMsg.innerText = "Synchronisation Google Sheets & Drive réussie avec succès ! (Dossier PDF archivé)";
+                syncMsg.style.color = "#15803d";
+            }).catch(err => {
+                syncMsg.innerText = "Note validée en local. (Synchronisation cloud différée)";
+                syncMsg.style.color = "#854d0e";
+            });
+
+            // 4. Déclencher automatiquement la boîte d'enregistrement locale pour l'élève (sans bloquer la capture)
+            setTimeout(() => {
+                exporterDossierPDF();
+            }, 300);
+        }
+
+        // -------------------------------------------------------------------------
+        // INITIALISATION AU CHARGEMENT
+        // -------------------------------------------------------------------------
+        window.addEventListener('DOMContentLoaded', () => {
+            if (window.TD_IMAGES_DATA) {
+                document.querySelectorAll('img').forEach(img => {
+                    const src = img.getAttribute('src');
+                    if (src && !src.startsWith('data:')) {
+                        const fn = src.replace(/^.*[\\\/]/, '');
+                        if (window.TD_IMAGES_DATA[fn]) {
+                            img.src = window.TD_IMAGES_DATA[fn];
+                        }
+                    }
+                });
+            }
+            mettreAJourIdentite();
+            calculerProgression();
+            mettreAJourBadgesIndices();
+        });
+    </script>
+</body>
+
+</html>
